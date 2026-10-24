@@ -1,0 +1,58 @@
+:root {
+  --bg: #14110f;
+  --surface: #1e1a17;
+  --surface-2: #2a2420;
+  --border: #3a322c;
+  --text: #f4ece4;
+  --muted: #a89a8c;
+  --accent: #d9a066;
+  /* decision scale: matches the LED */
+  --green: #4cc38a;
+  --amber: #f2b441;
+  --red: #ef5b5b;
+  --green-bg: rgb(76 195 138 / 0.14);
+  --amber-bg: rgb(242 180 65 / 0.14);
+  --red-bg: rgb(239 91 91 / 0.14);
+  --radius: 16px;
+  --nav-h: 64px;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #faf6f1; --surface: #fff; --surface-2: #f1e9e0; --border: #e3d8cc;
+    --text: #2a211a; --muted: #7a6b5d; --accent: #a8672c;
+    --green: #1f9d63; --amber: #c98a12; --red: #d63c3c;
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); }
+body { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-tap-highlight-color: transparent; }
+h1 { font-size: 1.6rem; margin: 0 0 16px; letter-spacing: -0.01em; }
+a { color: inherit; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.led-green { color: var(--green); background: var(--green-bg); }
+.led-amber { color: var(--amber); background: var(--amber-bg); }
+.led-red { color: var(--red); background: var(--red-bg); }
+
+/* Phone: bottom tab bar */
+.shell { min-height: 100dvh; }
+.main { padding: 20px 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)); max-width: 720px; margin: 0 auto; }
+.nav { position: fixed; inset: auto 0 0 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); }
+.nav nav { display: flex; height: var(--nav-h); }
+.logo { display: none; user-select: none; -webkit-user-select: none; touch-action: none; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 0.75rem; color: var(--muted); text-decoration: none; }
+.tab.active { color: var(--accent); }
+
+/* Desktop: side nav */
+@media (min-width: 900px) {
+  .shell { display: grid; grid-template-columns: 240px 1fr; }
+  .nav { position: sticky; top: 0; height: 100dvh; inset: auto; border-top: 0; border-right: 1px solid var(--border); padding: 24px 12px; }
+  .nav nav { flex-direction: column; height: auto; gap: 4px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.15rem; padding: 0 12px 24px; cursor: default; }
+  .logo-mark { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(var(--accent) 0 50%, var(--surface-2) 0); border: 2px solid var(--accent); }
+  .tab { flex: none; flex-direction: row; justify-content: flex-start; gap: 12px; font-size: 1rem; padding: 10px 12px; border-radius: 12px; }
+  .tab.active { background: var(--surface-2); }
+  .main { padding: 40px 32px; max-width: 880px; margin: 0; }
+}

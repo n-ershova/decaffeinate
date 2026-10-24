@@ -41,15 +41,20 @@ const MUTED = "var(--muted)";
 export default function CaffeineCurve({ curve, bedtime, safeLineMg, compareCurve }: Props) {
   if (curve.length === 0) return <div style={{ color: MUTED }}>No curve yet.</div>;
 
-  const compare = new Map(compareCurve?.map((p) => [new Date(p.t).getTime(), p.mg]));
-  const data = curve.map((p) => {
+  // Merge on time: the compare curve may come from a later request, so its steps needn't line up.
+  type Row = { t: number; mg?: number; compare?: number };
+  const rows = new Map<number, Row>();
+  const put = (p: CurvePoint, k: "mg" | "compare") => {
     const t = new Date(p.t).getTime();
-    return { t, mg: p.mg, compare: compare.get(t) };
-  });
-  const start = data[0];
-  const end = data[data.length - 1].t;
+    rows.set(t, { ...(rows.get(t) ?? { t }), [k]: p.mg });
+  };
+  curve.forEach((p) => put(p, "mg"));
+  compareCurve?.forEach((p) => put(p, "compare"));
+  const data = [...rows.values()].sort((a, b) => a.t - b.t);
+  const start = { t: new Date(curve[0].t).getTime(), mg: curve[0].mg };
+  const end = new Date(curve[curve.length - 1].t).getTime();
   const bed = bedtimeMs(bedtime, start.t, end);
-  const peak = Math.max(...data.map((d) => Math.max(d.mg, d.compare ?? 0)), safeLineMg);
+  const peak = Math.max(...data.map((d) => Math.max(d.mg ?? 0, d.compare ?? 0)), safeLineMg);
 
   return (
     <figure style={{ margin: 0 }}>
@@ -98,12 +103,12 @@ export default function CaffeineCurve({ curve, bedtime, safeLineMg, compareCurve
             )}
             <Area
               type="monotone" dataKey="mg" name="mg" stroke="var(--text)" strokeWidth={1.5}
-              fill="url(#mgFill)" isAnimationActive={false} activeDot={{ r: 3, strokeWidth: 0, fill: "var(--text)" }}
+              fill="url(#mgFill)" connectNulls isAnimationActive={false} activeDot={{ r: 3, strokeWidth: 0, fill: "var(--text)" }}
             />
             {compareCurve && (
               <Line
                 type="monotone" dataKey="compare" name="compare" stroke="var(--red)" strokeWidth={1.5}
-                strokeDasharray="4 4" dot={false} isAnimationActive={false}
+                strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false}
                 activeDot={{ r: 3, strokeWidth: 0, fill: "var(--red)" }}
               />
             )}

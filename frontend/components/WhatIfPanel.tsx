@@ -114,5 +114,5 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
 }
 
 const linkButton: React.CSSProperties = {
-  font: "inherit", background: "none", border: 0, padding: 0, cursor: "pointer", color: "var(--text)",
+  font: "inherit", background: "none", border: 0, padding: 0, cursor: "pointer", color: "var(--text)", justifySelf: "start",
 };

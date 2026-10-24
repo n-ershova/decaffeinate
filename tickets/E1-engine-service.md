@@ -1,5 +1,7 @@
 # E1 · Engine service
 
+> Connect the model pieces to the stored data and produce the numbers each screen shows.
+
 **Must · A · 2h · Files:** `services/engine.py`, `tests/test_engine.py`
 - The only place that imports the model modules. `state()` loads the user, today's drinks, and all drinks, alcohol and sleep. It fits the posterior (exposures from `curve.sleep_exposure` per night), draws 500 samples with a seeded RNG, and assembles `StateResponse`.
 - `whatif()` and `profile()` work the same way. Profile `history` refits on the first n nights for n = 0…N.

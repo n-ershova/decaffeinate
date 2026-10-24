@@ -1,5 +1,7 @@
 # S2 · Presage heart rate check
 
+> A 30-second camera heart rate scan after a drink, using Presage. (Stretch)
+
 **Could · D · 2.5h · Files:** `routes/hr.py`, `frontend/app/hr/page.tsx` (own page, not linked from the nav until merged) · §9
 - A 30-second Presage scan about 45 minutes after a drink, saved via `/hr` and shown on the page. Not used by the model.
 - **Done when:** one real reading is saved and shown.

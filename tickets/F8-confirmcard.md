@@ -1,5 +1,7 @@
 # F8 · `ConfirmCard`
 
+> The card that confirms a recognised drink, with one-tap fixes for shots, size and decaf.
+
 **Must · C · 2h · Files:** `components/ConfirmCard.tsx` · §6.4
 - Shows the drink, mg and range. One-tap chips appear only for the items in `estimate.needs` (single/double, decaf, S/M/L) and recalculate mg on the client using the per-shot rule. If `logged` is set, it shows an "Undo" option instead.
 - **Done when:** it handles auto-accepted, needs-shots and unknown results.

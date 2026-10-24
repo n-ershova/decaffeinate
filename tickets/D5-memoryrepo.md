@@ -1,5 +1,7 @@
 # D5 · `MemoryRepo`
 
+> An in-memory stand-in for the database, used for tests and as an offline demo fallback.
+
 **Must · B · 1h · Files:** `db/memory_repo.py`, `tests/test_memory_repo.py`
 - Implement `Repo` with dicts and lists, thread-safe with a lock. Creates user 1 ("You", bedtime 23:30) on init.
 - This is the offline demo fallback if Tiger Data or the Wi-Fi fails.

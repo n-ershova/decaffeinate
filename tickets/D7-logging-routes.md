@@ -1,5 +1,7 @@
 # D7 · Logging routes
 
+> API endpoints to save drinks, alcohol and morning check-ins, and to list presets and recent drinks.
+
 **Must · B · 1.5h · Files:** `routes/logging.py`, `tests/test_routes_logging.py`
 - `POST/GET /drinks`, `POST /alcohol`, `POST /sleep` (upsert), `GET /sleep/pending` (true if last night has no entry and the local time is after 05:00), and `GET /presets` (reads `data/drinks.json` directly).
 - `time` defaults to the server's now.

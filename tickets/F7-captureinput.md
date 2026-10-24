@@ -1,5 +1,7 @@
 # F7 · `CaptureInput`
 
+> Take a photo or type a description of a drink and send it for recognition.
+
 **Must · C · 1.5h · Files:** `components/CaptureInput.tsx`
 - `<input type="file" accept="image/*" capture="environment">` plus a text box. Downscales the image on the client, posts it to `/drinks/identify`, and shows a loading state. A timeout falls back to the message "Pick a preset".
 - **Done when:** the image and text paths work in mock mode.

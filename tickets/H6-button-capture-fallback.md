@@ -1,5 +1,7 @@
 # H6 · Button-capture fallback
 
+> Backup mode: press a button to snap and send one photo if automatic detection is unreliable.
+
 **Should · D · 1h · Files:** `jetson/button_capture.py` · §8.4
 - A GPIO button (or the Enter key on a laptop) grabs one frame and uploads the centre crop.
 - **Done when:** it works without YOLO.

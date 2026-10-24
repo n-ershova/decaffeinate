@@ -1,5 +1,7 @@
 # F4 · `TodayHeadline` + `DailyCapBar`
 
+> The headline ("Last coffee today by 14:10") in red, amber or green, and a progress bar towards the 400 mg cap.
+
 **Must · C · 1h · Files:** `components/TodayHeadline.tsx`, `components/DailyCapBar.tsx`
 - A large headline coloured by the LED colour. A progress bar against 400 mg that turns red at the cap.
 - **Done when:** all three colours, the `null` cutoff and the at-cap state render.

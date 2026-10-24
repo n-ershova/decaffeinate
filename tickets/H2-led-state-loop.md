@@ -1,5 +1,7 @@
 # H2 · LED state loop
 
+> Keep the LED in sync with the app by checking the backend every 2 seconds.
+
 **Should · D · 1h · Files:** `jetson/state_loop.py`, `jetson/tests/test_state_loop.py` · §8.3
 - Poll `GET /state` every 2 seconds and set the LED. After 3 consecutive failures, slowly blink amber. Exit cleanly when `stop` is set.
 - **Develop in isolation:** a tiny `http.server` fake returning fixture JSON, and a fake `Led`.

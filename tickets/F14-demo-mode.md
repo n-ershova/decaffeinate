@@ -1,5 +1,7 @@
 # F14 · Demo mode
 
+> The hidden demo screen comparing two simulated users with the same habits but different half-lives.
+
 **Must · A · 2h · Files:** `components/DemoSwitcher.tsx` · §5.2 Demo, §15 step 4
 - A "Seed demo" button calls `/demo/seed`. Side by side for users 2 and 3: the two cutoffs, the `PosteriorChart` history animated night by night (slider or play button), and a "Simulated data" badge.
 - Inline its own minimal chart; don't import F13.

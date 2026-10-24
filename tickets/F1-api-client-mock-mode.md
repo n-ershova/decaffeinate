@@ -1,5 +1,7 @@
 # F1 · API client + mock mode
 
+> The frontend's connection to the backend, with a mock mode so screens work without the server.
+
 **Must · C · 1.5h · Files:** `lib/api.ts`, `lib/fixtures.ts`
 - Typed functions for every route in 0.4. When `NEXT_PUBLIC_MOCK=1`, they return fixtures after a 300 ms delay. The fixtures are a realistic day: a curve, an amber state, and a profile with 21 nights.
 - A `useApi` hook (SWR-style) that revalidates `/state` after any write.

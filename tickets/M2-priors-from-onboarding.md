@@ -1,5 +1,7 @@
 # M2 · Priors from onboarding
 
+> Turn the onboarding answers (smoking, contraception) into the starting guess for the user's half-life.
+
 **Must · A · 1h · Files:** `model/priors.py`, `tests/test_priors.py` · §5.1, §7.5
 - Start from `h0 = 5`. Multiply by 0.6 for a smoker and by 1.8 for hormonal contraception (both apply if both are true). `log_h_sd = 0.4`.
 - Set `m0 = [15, 6, 0]` and `S0 = diag([100, 36, 25])`.

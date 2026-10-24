@@ -1,5 +1,7 @@
 # E2 · `/state` and `/whatif` routes
 
+> API endpoints for the Today screen: the current caffeine state and the what-if prediction.
+
 **Must · B · 1h · Files:** `routes/state.py`, `tests/test_routes_state.py`
 - Thin routes using `Depends(get_engine)` and `Depends(get_now)`. Validate the input with pydantic. Return 404 for an unknown user.
 - **Develop in isolation:** override `get_engine` with a fake returning fixture JSON.

@@ -1,5 +1,7 @@
 # H7 · `scan_station.py` orchestrator
 
+> The main Jetson program that ties the camera, detection, upload and LED together.
+
 **Should · D · 1h · Files:** `jetson/scan_station.py`
 - Camera loop → `Detector` → `Trigger` → white flash → `upload_crop`, with `run_state_loop` running in a thread. The `--fallback` flag uses H6 instead.
 - **Develop in isolation:** code only against the 0.6 signatures; run with stubs.

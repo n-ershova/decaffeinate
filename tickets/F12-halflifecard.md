@@ -1,5 +1,7 @@
 # F12 · `HalfLifeCard`
 
+> Shows the user's personal half-life and sensitivity compared with the average person.
+
 **Should · C · 1h · Files:** `components/HalfLifeCard.tsx`
 - "Your half-life: 7.1 h (± 1.0)" against the population average of 5 h, the sensitivity label, and a "Not medical advice" footnote.
 - **Done when:** the preview page renders the fixture profile.

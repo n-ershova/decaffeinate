@@ -1,5 +1,7 @@
 # D9 · `/demo/seed` route & seed SQL
 
+> API endpoint that creates the two simulated demo users (fast and slow) with three weeks of history.
+
 **Must · B · 1.5h · Files:** `routes/demo.py`, `data/seed_demo.sql`, `tests/test_routes_demo.py` · §5.2 Demo, §7.12
 - Reset users 2 and 3, then create "Sam (fast, h=3)" and "Alex (slow, h=8)" with `is_simulated=true`, the same seed and the same beta. Call `simulate_user` and write the history to the repo.
 - Also export the result as `seed_demo.sql` for loading without the API.

@@ -1,5 +1,7 @@
 # S1 · Hosting & networking runbook
 
+> Step-by-step guide to running the demo on a phone hotspot, with optional Vultr hosting.
+
 **Should · D · 1.5h · Files:** `docs/RUNBOOK.md`, `deploy/` · §10, §16
 - Phone hotspot setup and how to find the laptop's IP for the Jetson and the phone. Running locally with `REPO=memory` as a fallback. Optional Vultr deploy with a public URL (systemd or Docker for the API, static Next.js build).
 - **Done when:** a teammate can follow it from scratch in 10 minutes.

@@ -1,5 +1,7 @@
 # H8 · Enclosure & wiring
 
+> Wire the LED and build the cardboard enclosure for the desk device.
+
 **Should · D · 2h · Physical** · §8.2, §13 (Handmade prize)
 - Wire the LED with 220–330 Ω resistors and an optional buzzer. Build a cardboard enclosure with a camera mount and an LED diffuser. Photograph the build for Devpost.
 - **Done when:** the device stands on a desk and the LED is visible from 2 m.

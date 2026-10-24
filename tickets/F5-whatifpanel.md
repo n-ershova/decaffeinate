@@ -1,5 +1,7 @@
 # F5 · `WhatIfPanel`
 
+> The "Have another one now?" button showing how a drink would change tonight's sleep.
+
 **Must · C · 1.5h · Files:** `components/WhatIfPanel.tsx` · §7.8
 - A "Have another one now?" button and a drink picker (standard coffee, tea, energy drink). Calls `/whatif` and shows "+9 min to fall asleep (4–17)" with the new curve overlaid. Shows a cap warning when needed.
 - **Done when:** it works end to end in mock mode.

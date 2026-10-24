@@ -1,5 +1,7 @@
 # T00 · Scaffold & freeze contracts
 
+> Set up the empty project and the shared contracts so all four people can build in parallel from the start.
+
 **Must · All (one person types, everyone reviews) · 45m**
 - Create the layout in 0.1, with every file containing the signatures from 0.2 to 0.6 and bodies of `raise NotImplementedError` (Python) or a `TODO` div (React).
 - `main.py`: create the FastAPI app, enable CORS for `*`, and auto-include every `router` found in `app/routes/*.py`. Add `GET /health`.

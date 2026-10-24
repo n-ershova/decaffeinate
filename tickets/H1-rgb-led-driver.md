@@ -1,5 +1,7 @@
 # H1 · RGB LED driver
 
+> Control the red, amber and green LED on the Jetson.
+
 **Should · D · 1h · Files:** `jetson/led.py` · §8.2
 - Common-cathode LED on 3 GPIO pins, with pins set by env. Amber is red plus green (PWM if available). `flash()` doesn't block (uses a thread). If GPIO can't import, fall back to printing to the console.
 - **Done when:** `python led.py cycle` cycles through the colours on hardware and on a laptop.

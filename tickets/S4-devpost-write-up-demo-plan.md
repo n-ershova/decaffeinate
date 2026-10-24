@@ -1,5 +1,7 @@
 # S4 · Devpost write-up & demo plan
 
+> The Devpost write-up, screenshots and a rehearsed demo script with fallbacks.
+
 **Must · D · 2h · Files:** `docs/DEVPOST.md`, `docs/DEMO.md` · §13, §15
 - Draft the write-up from the whitepaper now, with prize alignment for each sponsor. Take screenshots from mock mode first and replace them later.
 - Write the demo script with a prop order (labelled can first) and a fallback for each step.

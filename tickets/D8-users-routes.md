@@ -1,5 +1,7 @@
 # D8 · `/users` routes
 
+> API endpoints to create a user from onboarding and update their bedtime and tolerance.
+
 **Must · B · 1h · Files:** `routes/users.py`, `tests/test_routes_users.py` · §5.1
 - `POST /users`, `GET /users/{id}`, `PATCH /users/{id}`. `tolerance_min` must be one of {5, 10, 20}.
 - **Done when:** the tests pass with a fake repo.

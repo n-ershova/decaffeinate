@@ -1,5 +1,7 @@
 # H5 · Crop & upload client
 
+> Crop just the drink from the frame and send it to the backend (faces never leave the device).
+
 **Should · D · 1h · Files:** `jetson/uploader.py`, `jetson/tests/test_uploader.py` · §8.3
 - Crop the box plus 10% padding, encode as JPEG, and send it to `POST /drinks/identify` with `source=jetson`. Only the crop leaves the device, never the full frame (privacy).
 - **Done when:** a test checks that the crop is sent and not the frame.

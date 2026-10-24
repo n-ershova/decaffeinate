@@ -1,5 +1,7 @@
 # F15 · Settings & safety
 
+> Settings for tolerance and bedtime, plus the safety and not-medical-advice information.
+
 **Should · C · 1h · Files:** `components/SettingsForm.tsx`, `components/SafetyNotice.tsx` · §7.8, §17
 - Tolerance Strict/Normal/Relaxed and bedtime, saved with `PATCH /users/{id}`. Safety text taken from §17.
 - **Done when:** saving works in mock mode.

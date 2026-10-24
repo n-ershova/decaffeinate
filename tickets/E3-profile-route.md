@@ -1,5 +1,7 @@
 # E3 · `/profile` route
 
+> API endpoint for the You screen: the half-life estimate and how it narrowed night by night.
+
 **Should · B · 1.5h · Files:** `routes/profile.py`, `tests/test_routes_profile.py`
 - Same pattern as E2. Downsample `posterior.h_grid` and `prob` to 60 points for the chart.
 - **Done when:** the tests pass against a fake engine.

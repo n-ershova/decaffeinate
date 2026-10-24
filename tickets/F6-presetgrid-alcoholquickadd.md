@@ -1,5 +1,7 @@
 # F6 · `PresetGrid` + `AlcoholQuickAdd`
 
+> Quick-tap tiles for common drinks, plus buttons for logging alcohol.
+
 **Must · C · 1.5h · Files:** `components/PresetGrid.tsx`, `components/AlcoholQuickAdd.tsx`
 - A grid of emoji tiles with mg values. Alcohol buttons: pint (2.3 units), glass of wine (2.1), spirit (1).
 - **Done when:** the callbacks fire with the right payloads.

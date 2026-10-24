@@ -1,5 +1,7 @@
 # S3 · ElevenLabs morning brief
 
+> A spoken morning summary of today's caffeine advice, using ElevenLabs. (Stretch)
+
 **Could · D · 1.5h · Files:** `routes/brief.py` · §4
 - Build a script from `GET /state` (call it over HTTP, don't import the engine): "Morning. Your last coffee today is 14:10…". Convert it to speech with ElevenLabs and return the MP3, cached per day.
 - **Done when:** `curl /brief > a.mp3` plays.

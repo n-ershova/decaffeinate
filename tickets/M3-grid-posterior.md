@@ -1,5 +1,7 @@
 # M3 · Grid posterior
 
+> The core learning step: update the estimate of half-life and sensitivity from logged drinks and reported sleep.
+
 **Must · A · 3h · Files:** `model/posterior.py`, `tests/test_posterior.py` · §7.6
 - For each h in `H_GRID`, build `X = [1, exposures(h)/100, alcohol]`. Compute `S_N` and `m_N`, and the log marginal likelihood from `N(X m0, σ²I + X S0 Xᵀ)` (use `scipy.stats.multivariate_normal` or a Cholesky decomposition).
 - Add `log_prior_h` (copy the 3-line formula locally and don't import M2; the prior arrives as the `Prior` object). Normalise with log-sum-exp.

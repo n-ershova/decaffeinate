@@ -1,5 +1,7 @@
 # M7 · LED state rule, daily cap & safe line
 
+> Decide the green, amber or red light, enforce the 400 mg daily cap, and compute the sleep-safe line on the chart.
+
 **Must · A · 1h · Files:** `model/led.py`, `tests/test_led.py` · §7.8, §7.9
 - Green if a 130 mg drink now is within delta for at least 80% of samples. Amber if 45 mg is. Otherwise red. Always red when `daily_total_mg ≥ 400`.
 - `safe_line_mg`: return `100·delta / β₈₀`, where β₈₀ is the 80th percentile of beta (guard against β = 0).

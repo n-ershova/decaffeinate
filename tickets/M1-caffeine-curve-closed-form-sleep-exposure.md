@@ -1,5 +1,7 @@
 # M1 · Caffeine curve & closed-form sleep exposure
 
+> Calculate how much caffeine is in the body at any time, and the average amount during the first 3 hours of sleep.
+
 **Must · A · 1.5h · Files:** `model/curve.py`, `tests/test_curve.py` · §7.2, §7.3
 - `amount_at`: compute `sum D_i * exp(-k (t - t_i))` over drinks with `t_i <= t`, where `k = ln2/h`.
 - `curve`: return points from `start` to `end` every `step_min`.

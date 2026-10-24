@@ -1,5 +1,7 @@
 # F2 · App shell, nav, theme, PWA
 
+> The app's frame: navigation, colours, phone and desktop layouts, and installing it as a web app.
+
 **Must · C · 1.5h · Files:** `components/AppShell.tsx`, `public/manifest.json`, `public/icons/*`, `app/globals.css`
 - Bottom tab bar (Today / Log / You) on phones, side nav on desktop, and a red/amber/green colour scale. The manifest makes the app installable.
 - A hidden demo toggle: long-press the logo to go to `/demo`.

@@ -1,5 +1,7 @@
 # F3 · `CaffeineCurve`
 
+> The main chart showing caffeine in the body from now until tomorrow morning, with bedtime and the safe line.
+
 **Must · C · 2h · Files:** `components/CaffeineCurve.tsx` · §5.2 Today
 - A Recharts area chart from now to the next morning, with a bedtime reference line, a dashed safe line, and an optional dashed `compareCurve` overlay for what-if.
 - **Done when:** the preview page shows both the normal and comparison modes.

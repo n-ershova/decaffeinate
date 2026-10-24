@@ -1,5 +1,7 @@
 # F11 · `MorningCheckin`
 
+> The morning pop-up asking when the user went to bed and how long it took to fall asleep.
+
 **Should · C · 1.5h · Files:** `components/MorningCheckin.tsx` · §5.3
 - A modal showing when `/sleep/pending` returns true: bedtime picker, a latency slider (0–120 minutes) and rested 1–5. Saving it refreshes the state.
 - **Done when:** it works in mock mode and can be skipped.

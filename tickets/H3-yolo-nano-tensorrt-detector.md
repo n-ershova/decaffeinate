@@ -1,5 +1,7 @@
 # H3 · YOLO nano → TensorRT detector
 
+> Run a fast on-device model that spots cups and bottles in the webcam feed.
+
 **Should · D · 3h · Files:** `jetson/detector.py`, `jetson/export_engine.sh`
 - Export Ultralytics YOLO nano to TensorRT (FP16) on the Orin Nano, and filter detections to cup, bottle and wine glass.
 - Falls back to the `.pt` model on a laptop.

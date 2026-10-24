@@ -1,5 +1,7 @@
 # D2 · Gemini client
 
+> Send a photo or text to Gemini and get back which drink it is, never a guessed caffeine number.
+
 **Must · B · 2.5h · Files:** `drinks/gemini.py`, `tests/test_gemini.py`, `data/gemini_cache/` · §6.2, §6.3
 - Use a Flash-tier model with `response_schema` matching `GeminiResult`, where `drink` is an enum of `DRINK_KEYS`. The prompt asks it to read printed caffeine and never to guess mg.
 - 6-second timeout. On error, return `drink="unknown", confidence=0`.

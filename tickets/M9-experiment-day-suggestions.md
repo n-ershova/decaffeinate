@@ -1,5 +1,7 @@
 # M9 · Experiment day suggestions
 
+> Suggest a drink time that would teach the model the most without risking a bad night. (Stretch)
+
 **Could · A · 1.5h · Files:** `model/experiment.py`, `tests/test_experiment.py` · §7.10
 - For each candidate time, compute the variance across samples of `beta·E/100`. Keep only candidates that are safe at relaxed tolerance (20 minutes), and return the candidate with the highest variance.
 - **Done when:** it returns `None` if nothing is safe, and prefers afternoon times when h is uncertain.

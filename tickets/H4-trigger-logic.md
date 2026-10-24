@@ -1,5 +1,7 @@
 # H4 · Trigger logic
 
+> Decide when a drink is being deliberately held up to the camera, and avoid double logging.
+
 **Should · D · 1.5h · Files:** `jetson/trigger.py`, `jetson/tests/test_trigger.py` · §8.3
 - The box centre must be in the middle 40% of the frame, the area ≥ 8% of the frame, and the IoU with the previous box ≥ 0.6 for 1 second. Then a 10-second cooldown. Pure logic with no camera.
 - **Done when:** unit tests on synthetic box sequences cover firing, jitter, a drink that is too small, and cooldown.

@@ -12,13 +12,14 @@ export default function HalfLifeCard({ profile }: Props) {
   const diff = h.mean - pop;
   const compare =
     Math.abs(diff) < 0.5
-      ? "About the same as most people."
+      ? "About average."
       : diff > 0
-        ? `Slower than most people, so a coffee stays with you about ${diff.toFixed(1)} hours longer.`
-        : `Faster than most people, so a coffee leaves you about ${(-diff).toFixed(1)} hours sooner.`;
+        ? "Slower than most people."
+        : "Faster than most people.";
 
   return (
-    <section>
+    <>
+    <section className="segment">
       <p className="eyebrow">How fast your body clears caffeine</p>
       <p style={{ margin: 0, fontVariantNumeric: "tabular-nums" }}>
         <span style={{ fontSize: "clamp(5rem, 20vw, 7.5rem)", fontWeight: 200, letterSpacing: "-0.055em", lineHeight: 0.92, fontFeatureSettings: '"tnum"' }}>{h.mean.toFixed(1)}</span>
@@ -26,10 +27,7 @@ export default function HalfLifeCard({ profile }: Props) {
         <span className="num" style={{ fontSize: "0.8rem", color: "var(--muted)", marginLeft: 12 }}>± {h.sd.toFixed(1)}</span>
       </p>
       <p style={{ margin: "16px 0 0", fontSize: "0.95rem", maxWidth: "46ch" }}>
-        Every {h.mean.toFixed(1)} hours, half the caffeine in your body is gone. {compare}
-      </p>
-      <p className="caption">
-        Scientists call this your caffeine <strong>half-life</strong>. It differs a lot between people, from about 2 to 10 hours.
+        Half your caffeine is gone every {h.mean.toFixed(1)} hours. {compare}
       </p>
 
       {/* 0–12 h scale: your 80% interval as a band, population average as a tick */}
@@ -46,15 +44,12 @@ export default function HalfLifeCard({ profile }: Props) {
         <span style={{ position: "absolute", top: 24, right: 0, fontSize: "0.68rem", color: "var(--muted)" }}>Clears slowly</span>
       </div>
 
-      <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
-        <p className="eyebrow" style={{ marginBottom: 4 }}>How much caffeine affects your sleep</p>
-        <p style={{ margin: 0, fontSize: "1.1rem", fontWeight: 300, letterSpacing: "-0.01em" }}>{sensitivity.label}</p>
-        <p className="caption">How much a given amount of caffeine at bedtime delays your sleep, compared with other people.</p>
-      </div>
-
-      <p style={{ margin: "24px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>
-        Estimated from your drinks and sleep. Not medical advice.
-      </p>
     </section>
+
+    <section className="segment">
+      <p className="eyebrow">How much caffeine affects your sleep</p>
+      <p style={{ margin: 0, fontSize: "1.1rem", fontWeight: 300, letterSpacing: "-0.01em" }}>{sensitivity.label}</p>
+    </section>
+    </>
   );
 }

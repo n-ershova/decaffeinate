@@ -217,6 +217,8 @@ All times are ISO 8601 with offset. `cutoff` and `bedtime` are `"HH:MM"` local.
 | GET | `/drinks` | `?user_id&days=14` | `Drink[]` | D7 |
 | POST | `/alcohol` | `{user_id, units, time?}` | `Alcohol` | D7 |
 | POST | `/sleep` | `{user_id, night, bedtime, latency_min, rested_1to5}` | `SleepNight` | D7 |
+| DELETE | `/drinks` | `{user_id, times: string[]}` | `{deleted: int}` | D7 |
+| DELETE | `/sleep` | `{user_id, nights: date[]}` | `{deleted: int}` | D7 |
 | GET | `/sleep/pending` | `?user_id` | `{needs_checkin: bool, night: date}` | D7 |
 | GET | `/presets` | | `Preset[]` | D7 |
 | POST | `/users` | `{name, bedtime, smoker, hormonal_bc}` | `User` | D8 |

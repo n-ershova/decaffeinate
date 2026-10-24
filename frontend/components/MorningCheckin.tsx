@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { submitSleep } from "@/lib/api";
 import { isoLocal } from "@/lib/fixtures";
+import { getLightsOut } from "@/lib/lightsOut";
 
 interface Props {
   userId: number;
@@ -20,7 +21,7 @@ function bedtimeIso(night: string, hhmm: string): string {
 }
 
 export default function MorningCheckin({ userId, night, onDone }: Props) {
-  const [bedtime, setBedtime] = useState("23:00");
+  const [bedtime, setBedtime] = useState(() => getLightsOut(night) ?? "23:00");
   const [latency, setLatency] = useState(20);
   const [rested, setRested] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);

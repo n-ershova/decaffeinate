@@ -135,6 +135,25 @@ export async function logDrink(d: NewDrink): Promise<Drink> {
   return out;
 }
 
+/** Deletes the given user's drinks, identified by their `time`. */
+export async function deleteDrinks(userId: number, times: string[]): Promise<void> {
+  const drop = new Set(times);
+  if (MOCK) await mock(() => { store.drinks = mockDrinks().filter((d) => !drop.has(d.time)); });
+  else await http("/drinks", json("DELETE", { user_id: userId, times }));
+  revalidate("/drinks");
+  revalidate("/state");
+}
+
+/** Deletes the given user's morning check-ins, identified by `night`. */
+export async function deleteSleep(userId: number, nights: string[]): Promise<void> {
+  const drop = new Set(nights);
+  if (MOCK) await mock(() => { store.sleep = mockSleep().filter((n) => !drop.has(n.night)); });
+  else await http("/sleep", json("DELETE", { user_id: userId, nights }));
+  revalidate("/profile");
+  revalidate("/sleep");
+  revalidate("/state");
+}
+
 export async function logAlcohol(units: number, userId = 1): Promise<Alcohol> {
   const out = MOCK
     ? await mock(() => fixtureAlcohol(units))

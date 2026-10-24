@@ -24,12 +24,10 @@ export default function PosteriorChart({ history, posterior }: Props) {
   const yMax = Math.ceil(Math.max(...history.map((n) => n.h_high), POP_H + 1));
 
   return (
-    <section>
-      <p style={{ margin: 0, fontSize: "0.95rem" }}>Getting more certain each night</p>
-      <p className="caption" style={{ marginBottom: 16 }}>
-        Each morning check-in teaches us more. The line is our best guess for your clearing time; the shaded band is
-        the likely range, and it narrows as we learn. The dotted line is the average person.
-      </p>
+    <>
+    <section className="segment">
+      <p className="eyebrow" style={{ marginBottom: 0 }}>Getting more certain each night</p>
+      <p className="caption" style={{ marginTop: 4, marginBottom: 16 }}>The band narrows with each check-in.</p>
       <div style={{ width: "100%", height: 200 }}>
         <ResponsiveContainer>
           <ComposedChart data={band} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
@@ -50,10 +48,11 @@ export default function PosteriorChart({ history, posterior }: Props) {
         </ResponsiveContainer>
       </div>
 
-      <p style={{ margin: "40px 0 0", fontSize: "0.95rem" }}>Our best guess today</p>
-      <p className="caption" style={{ marginBottom: 12 }}>
-        The higher the curve, the more likely that clearing time is. A narrow peak means we&apos;re confident.
-      </p>
+    </section>
+
+    <section className="segment">
+      <p className="eyebrow" style={{ marginBottom: 0 }}>Our best guess today</p>
+      <p className="caption" style={{ marginTop: 4, marginBottom: 16 }}>A narrower peak means more confident.</p>
       <div style={{ width: "100%", height: 100 }}>
         <ResponsiveContainer>
           <AreaChart data={density} margin={{ top: 4, right: 8, bottom: 0, left: 8 }}>
@@ -65,5 +64,6 @@ export default function PosteriorChart({ history, posterior }: Props) {
         </ResponsiveContainer>
       </div>
     </section>
+    </>
   );
 }

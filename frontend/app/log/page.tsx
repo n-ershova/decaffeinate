@@ -7,6 +7,7 @@ import ConfirmCard from "@/components/ConfirmCard";
 import PresetGrid from "@/components/PresetGrid";
 import UsualSuggestions from "@/components/UsualSuggestions";
 import { getDrinks, getPresets, logAlcohol, logDrink, revalidate, useApi, useUserId, type NewDrink } from "@/lib/api";
+import { toast as popup } from "@/lib/toast";
 import type { IdentifyResponse } from "@/lib/types";
 
 const label = (key: string) => key.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
@@ -39,11 +40,11 @@ export default function Log() {
       {result ? (
         <ConfirmCard
           result={result}
-          onConfirm={(d) => add(d, result.estimate.label)}
+          onConfirm={async (d) => { await add(d, result.estimate.label); popup("Logged"); }}
           onCancel={() => setResult(null)}
         />
       ) : (
-        <CaptureInput onResult={(r) => { setToast(null); setResult(r); if (r.logged) revalidate("/state"); }} />
+        <CaptureInput onResult={(r) => { setToast(null); setResult(r); if (r.logged) { revalidate("/state"); popup("Logged"); } }} />
       )}
 
       {toast && <p role="status" style={{ margin: "-24px 0 0", fontSize: "0.85rem", color: "var(--muted)" }}>{toast}</p>}

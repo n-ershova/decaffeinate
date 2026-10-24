@@ -4,12 +4,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import MorningCheckin from "@/components/MorningCheckin";
+import Toaster from "@/components/Toaster";
 import { getSleepPending, useApi, useUserId } from "@/lib/api";
 
 const TABS = [
   { href: "/", label: "Today" },
   { href: "/log", label: "Log" },
+  { href: "/sleep", label: "Sleep" },
+  { href: "/history", label: "History" },
   { href: "/you", label: "You" },
+  { href: "/machine", label: "Machine" },
+  { href: "/settings", label: "Settings" },
 ];
 
 const LONG_PRESS_MS = 700;
@@ -65,6 +70,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <main className="main">{children}</main>
       {showCheckin && userId && <MorningCheckin userId={userId} night={night!} onDone={closeCheckin} />}
+      <Toaster />
     </div>
   );
 }

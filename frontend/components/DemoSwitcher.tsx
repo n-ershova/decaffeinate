@@ -70,7 +70,7 @@ export default function DemoSwitcher() {
         <input type="range" min={1} max={nights} value={night} aria-label="Night"
           onChange={(e) => { setPlaying(false); setNight(Number(e.target.value)); }}
           style={{ flex: 1, minWidth: 160, accentColor: "var(--text)" }} />
-        <span style={{ fontSize: "0.85rem", color: "var(--muted)", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", textAlign: "right" }}>
+        <span className="num" style={{ fontSize: "0.75rem", color: "var(--muted)", whiteSpace: "nowrap", textAlign: "right" }}>
           Night {night}/{nights}
         </span>
       </div>
@@ -79,17 +79,18 @@ export default function DemoSwitcher() {
         {sims.map((s) => {
           const now = s.profile.history[night - 1];
           return (
-            <article key={s.id}>
+            <article key={s.id} style={{ borderTop: "1px solid var(--border)", paddingTop: 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 500 }}>{s.name}</h3>
-                <span style={{ fontSize: "0.7rem", letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--muted)", border: "1px solid var(--border)", borderRadius: 999, padding: "2px 8px" }}>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 400 }}>{s.name}</h3>
+                <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
                   Simulated data
                 </span>
               </div>
-              <p style={{ margin: "16px 0 0", fontSize: "1.4rem", fontWeight: 500, letterSpacing: "-0.02em", color: `var(--${s.state.led})` }}>
-                {s.state.headline}
+              <p style={{ margin: "20px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>Last coffee by</p>
+              <p style={{ margin: "2px 0 0", fontSize: "3.5rem", lineHeight: 1, fontWeight: 200, letterSpacing: "-0.05em", fontFeatureSettings: '"tnum"', color: `var(--${s.state.led})` }}>
+                {s.state.cutoff ?? "—"}
               </p>
-              <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "var(--muted)", fontVariantNumeric: "tabular-nums" }}>
+              <p className="num" style={{ margin: "12px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>
                 Estimate {now.h_mean.toFixed(1)} h ({now.h_low.toFixed(1)}–{now.h_high.toFixed(1)}) · true {s.true_h} h
               </p>
               <MiniBand history={s.profile.history.slice(0, night)} total={nights} trueH={s.true_h} yMax={yMax} />

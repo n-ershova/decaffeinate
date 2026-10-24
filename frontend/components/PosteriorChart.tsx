@@ -11,9 +11,9 @@ interface Props {
 const MUTED = "var(--muted)";
 const POP_H = 5;
 const fmtNight = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString([], { day: "numeric", month: "short" });
-const axis = { stroke: MUTED, tick: { fontSize: 11 }, axisLine: false, tickLine: false } as const;
+const axis = { stroke: MUTED, tick: { fontSize: 10.5 }, axisLine: false, tickLine: false } as const;
 const tooltipStyle = {
-  contentStyle: { background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, padding: "6px 10px" },
+  contentStyle: { background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 2, fontSize: 11, padding: "6px 10px", boxShadow: "none" },
   itemStyle: { color: "var(--text)", padding: 0 },
   labelStyle: { color: MUTED, marginBottom: 2 },
 };
@@ -40,8 +40,8 @@ export default function PosteriorChart({ history, posterior }: Props) {
             />
             <ReferenceLine y={POP_H} stroke={MUTED} strokeDasharray="3 4" strokeOpacity={0.6}
               label={{ value: "Average", fill: MUTED, fontSize: 11, position: "insideBottomRight" }} />
-            <Area dataKey="range" name="range" stroke="none" fill="var(--text)" fillOpacity={0.12} isAnimationActive={false} />
-            <Line dataKey="mean" name="mean" stroke="var(--text)" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+            <Area dataKey="range" name="range" stroke="none" fill="var(--text)" fillOpacity={0.08} isAnimationActive={false} />
+            <Line dataKey="mean" name="mean" stroke="var(--text)" strokeWidth={1.25} dot={false} isAnimationActive={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -53,7 +53,7 @@ export default function PosteriorChart({ history, posterior }: Props) {
             <XAxis dataKey="h" type="number" domain={[1.5, 14]} ticks={[2, 4, 6, 8, 10, 12, 14]} unit="h" tickMargin={6} {...axis} />
             <YAxis hide />
             <ReferenceLine x={POP_H} stroke={MUTED} strokeDasharray="3 4" strokeOpacity={0.6} />
-            <Area type="monotone" dataKey="p" stroke="var(--text)" strokeWidth={1.5} fill="var(--text)" fillOpacity={0.1} isAnimationActive={false} />
+            <Area type="monotone" dataKey="p" stroke="var(--text)" strokeWidth={1.25} fill="var(--text)" fillOpacity={0.06} isAnimationActive={false} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

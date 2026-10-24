@@ -37,9 +37,9 @@ export default function OnboardingFlow({ onDone }: Props) {
   return (
     <div style={{ maxWidth: 420 }}>
       {index >= 0 && (
-        <div style={{ display: "flex", gap: 6, marginBottom: 40 }} aria-label={`Step ${index + 1} of ${ORDER.length}`}>
+        <div style={{ display: "flex", gap: 6, marginBottom: 56 }} aria-label={`Step ${index + 1} of ${ORDER.length}`}>
           {ORDER.map((s, i) => (
-            <span key={s} style={{ flex: 1, height: 2, background: i <= index ? "var(--text)" : "var(--border)", transition: "background 0.2s" }} />
+            <span key={s} style={{ flex: 1, height: 1, background: i <= index ? "var(--text)" : "var(--border)", transition: "background 0.2s" }} />
           ))}
         </div>
       )}
@@ -67,7 +67,7 @@ export default function OnboardingFlow({ onDone }: Props) {
         <Screen title="When do you usually go to bed?">
           <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>
             <input className="field" type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)} aria-label="Bedtime"
-              style={{ fontSize: "2rem", fontWeight: 500, letterSpacing: "-0.02em", colorScheme: "inherit" }} />
+              style={{ fontSize: "3rem", colorScheme: "inherit" }} />
             <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your first name (optional)" aria-label="Name" />
             <div><button className="btn" disabled={!bedtime} onClick={() => setStep("smoker")}>Continue</button></div>
           </div>
@@ -101,9 +101,9 @@ export default function OnboardingFlow({ onDone }: Props) {
 function Screen({ title, body, children }: { title: string; body?: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 500, letterSpacing: "-0.02em", lineHeight: 1.2 }}>{title}</h2>
-      {body && <p style={{ margin: "10px 0 0", color: "var(--muted)", fontSize: "0.95rem" }}>{body}</p>}
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 28 }}>{children}</div>
+      <h2 style={{ margin: 0, fontSize: "clamp(1.9rem, 6vw, 2.4rem)", fontWeight: 200, letterSpacing: "-0.035em", lineHeight: 1.08 }}>{title}</h2>
+      {body && <p style={{ margin: "14px 0 0", color: "var(--muted)", fontSize: "0.95rem", maxWidth: "36ch" }}>{body}</p>}
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 36 }}>{children}</div>
     </section>
   );
 }

@@ -52,8 +52,8 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} style={linkButton}>
-        Have another one now? <span aria-hidden>→</span>
+      <button onClick={() => setOpen(true)} className="btn ghost" style={{ justifySelf: "start" }}>
+        Have another one now?
       </button>
     );
   }
@@ -61,10 +61,10 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
   const x = result?.extra_latency_min;
 
   return (
-    <section>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-        <span style={{ fontSize: "0.9rem", color: "var(--muted)" }}>Have another one now?</span>
-        <button onClick={close} style={{ ...linkButton, fontSize: "0.85rem" }}>Close</button>
+    <section style={{ borderTop: "1px solid var(--border)", paddingTop: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>Have another one now?</span>
+        <button onClick={close} className="link">Close</button>
       </div>
 
       <div role="radiogroup" aria-label="Drink" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -73,12 +73,7 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
           return (
             <button
               key={o.key} role="radio" aria-checked={active} onClick={() => pick(o)}
-              style={{
-                font: "inherit", fontSize: "0.85rem", padding: "6px 14px", borderRadius: 999, cursor: "pointer",
-                border: `1px solid ${active ? "var(--text)" : "var(--border)"}`,
-                background: active ? "var(--text)" : "transparent",
-                color: active ? "var(--bg)" : "var(--text)",
-              }}
+              className="pill"
             >
               {o.label}
             </button>
@@ -86,18 +81,20 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
         })}
       </div>
 
-      <div style={{ minHeight: 56, marginTop: 24, opacity: loading ? 0.4 : 1, transition: "opacity 0.15s" }}>
+      <div style={{ minHeight: 64, marginTop: 28, opacity: loading ? 0.4 : 1, transition: "opacity 0.15s" }}>
         {error && <p style={{ margin: 0, color: "var(--red)", fontSize: "0.9rem" }}>{error}</p>}
         {!error && x && (
           <>
-            <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: 500, letterSpacing: "-0.02em", color: result ? `var(--${result.led_after})` : undefined }}>
-              +{Math.round(x.median)} min to fall asleep
-              <span style={{ marginLeft: 8, fontSize: "0.9rem", fontWeight: 400, color: "var(--muted)", letterSpacing: 0 }}>
-                ({Math.round(x.low)}–{Math.round(x.high)})
+            <p style={{ margin: 0, display: "flex", alignItems: "baseline", flexWrap: "wrap", gap: "4px 12px" }}>
+              <span style={{ fontSize: "3rem", lineHeight: 1, fontWeight: 200, letterSpacing: "-0.04em", fontFeatureSettings: '"tnum"', color: result ? `var(--${result.led_after})` : undefined }}>
+                +{Math.round(x.median)} min
+              </span>
+              <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
+                longer to fall asleep, likely <span className="num">{Math.round(x.low)}–{Math.round(x.high)}</span>
               </span>
             </p>
             {result?.cap_exceeded && (
-              <p style={{ margin: "6px 0 0", fontSize: "0.85rem", color: "var(--red)" }}>This would take you over 400 mg today.</p>
+              <p style={{ margin: "10px 0 0", fontSize: "0.85rem", color: "var(--red)" }}>This would take you over 400 mg today.</p>
             )}
           </>
         )}
@@ -112,7 +109,3 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
     </section>
   );
 }
-
-const linkButton: React.CSSProperties = {
-  font: "inherit", background: "none", border: 0, padding: 0, cursor: "pointer", color: "var(--text)", justifySelf: "start",
-};

@@ -41,25 +41,25 @@ export default function MorningCheckin({ userId, night, onDone }: Props) {
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="checkin-title" style={{
       position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center",
-      background: "rgb(0 0 0 / 0.55)", backdropFilter: "blur(2px)",
+      background: "rgb(20 20 19 / 0.35)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
     }}>
       <div style={{
         width: "100%", maxWidth: 440, background: "var(--bg)", border: "1px solid var(--border)",
-        borderRadius: "20px 20px 0 0", padding: "28px 24px calc(24px + env(safe-area-inset-bottom))",
+        borderRadius: "4px 4px 0 0", padding: "32px 28px calc(28px + env(safe-area-inset-bottom))",
       }} className="sheet">
         <p className="eyebrow">Good morning</p>
-        <h2 id="checkin-title" style={{ margin: 0, fontSize: "1.4rem", fontWeight: 500, letterSpacing: "-0.02em" }}>How did you sleep?</h2>
+        <h2 id="checkin-title" style={{ margin: 0, fontSize: "2rem", fontWeight: 200, letterSpacing: "-0.035em" }}>How did you sleep?</h2>
 
         <label style={{ display: "block", marginTop: 28 }}>
           <span className="eyebrow" style={{ display: "block" }}>Went to bed</span>
           <input className="field" type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)}
-            style={{ fontSize: "1.4rem", colorScheme: "inherit" }} />
+            style={{ fontSize: "1.75rem", colorScheme: "inherit" }} />
         </label>
 
         <label style={{ display: "block", marginTop: 24 }}>
           <span style={{ display: "flex", justifyContent: "space-between" }}>
             <span className="eyebrow">Time to fall asleep</span>
-            <span style={{ fontSize: "0.9rem", fontVariantNumeric: "tabular-nums" }}>{latency >= 120 ? "2 h+" : `${latency} min`}</span>
+            <span className="num" style={{ fontSize: "0.8rem" }}>{latency >= 120 ? "2 h+" : `${latency} min`}</span>
           </span>
           <input type="range" min={0} max={120} step={5} value={latency} onChange={(e) => setLatency(Number(e.target.value))}
             style={{ width: "100%", accentColor: "var(--text)" }} />

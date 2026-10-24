@@ -14,7 +14,7 @@ export default function SafetyNotice() {
       <dl style={{ margin: 0 }}>
         {POINTS.map(([title, body]) => (
           <div key={title} style={{ padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-            <dt style={{ fontSize: "0.9rem" }}>{title}</dt>
+            <dt style={{ fontSize: "0.95rem" }}>{title}</dt>
             <dd style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "var(--muted)" }}>{body}</dd>
           </div>
         ))}

@@ -41,7 +41,7 @@ export default function ConfirmCard({ result, onConfirm, onCancel, source = "pho
   if (estimate.drink_key === "unknown") {
     return (
       <Card>
-        <p style={{ margin: 0 }}>We couldn&apos;t tell what that was.</p>
+        <p style={{ margin: 0, fontSize: "1.1rem" }}>We couldn&apos;t tell what that was.</p>
         <p style={{ margin: "4px 0 16px", fontSize: "0.85rem", color: "var(--muted)" }}>Pick a preset or describe it instead.</p>
         <button className="link" onClick={onCancel}>Dismiss</button>
       </Card>
@@ -75,7 +75,7 @@ export default function ConfirmCard({ result, onConfirm, onCancel, source = "pho
       <Summary label={decaf ? `${estimate.label} (decaf)` : estimate.label} mg={v.mg} low={v.mg_low} high={v.mg_high} />
 
       {needs.size > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20 }}>
           {needs.has("shots") && (
             <Chips label="Shots" options={[[1, "Single"], [2, "Double"], [3, "Triple"]]} value={shots} onPick={pickShots} />
           )}
@@ -88,7 +88,7 @@ export default function ConfirmCard({ result, onConfirm, onCancel, source = "pho
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 20 }}>
+      <div style={{ display: "flex", gap: 20, alignItems: "center", marginTop: 24 }}>
         <button
           className="btn"
           onClick={() => onConfirm({
@@ -105,18 +105,18 @@ export default function ConfirmCard({ result, onConfirm, onCancel, source = "pho
 }
 
 function Card({ children }: { children: React.ReactNode }) {
-  return <div style={{ border: "1px solid var(--border)", borderRadius: 14, padding: 20 }}>{children}</div>;
+  return <div style={{ borderTop: "1px solid var(--text)", borderBottom: "1px solid var(--border)", padding: "20px 0 24px" }}>{children}</div>;
 }
 
 function Summary({ label, mg, low, high }: { label: string; mg: number; low: number; high: number }) {
   return (
     <div>
-      <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--muted)" }}>{label}</p>
-      <p style={{ margin: "4px 0 0", fontVariantNumeric: "tabular-nums" }}>
-        <span style={{ fontSize: "1.75rem", fontWeight: 500, letterSpacing: "-0.02em" }}>{Math.round(mg)}</span>
-        <span style={{ marginLeft: 4, color: "var(--muted)" }}>mg</span>
+      <p style={{ margin: 0, fontSize: "0.95rem" }}>{label}</p>
+      <p style={{ margin: "6px 0 0", display: "flex", alignItems: "baseline" }}>
+        <span style={{ fontSize: "3rem", lineHeight: 1, fontWeight: 200, letterSpacing: "-0.04em", fontFeatureSettings: '"tnum"' }}>{Math.round(mg)}</span>
+        <span style={{ marginLeft: 6, color: "var(--muted)" }}>mg</span>
         {Math.round(low) !== Math.round(high) && (
-          <span style={{ marginLeft: 10, fontSize: "0.8rem", color: "var(--muted)" }}>{Math.round(low)}–{Math.round(high)}</span>
+          <span className="num" style={{ marginLeft: 12, fontSize: "0.75rem", color: "var(--muted)" }}>likely {Math.round(low)}–{Math.round(high)}</span>
         )}
       </p>
     </div>
@@ -128,7 +128,7 @@ function Chips<T extends string | number | boolean>(
 ) {
   return (
     <div role="radiogroup" aria-label={label} style={{ display: "flex", gap: 6, alignItems: "center" }}>
-      <span style={{ width: 72, fontSize: "0.8rem", color: "var(--muted)" }}>{label}</span>
+      <span style={{ width: 80, fontSize: "0.8rem", color: "var(--muted)" }}>{label}</span>
       {options.map(([v, text]) => (
         <button key={String(v)} role="radio" aria-checked={v === value} className="pill" onClick={() => onPick(v)}>
           {text}

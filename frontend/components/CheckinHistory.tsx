@@ -19,13 +19,13 @@ export default function CheckinHistory({ checkins }: Props) {
         {rows.map((c) => (
           <li key={c.night} style={{
             display: "grid", gridTemplateColumns: "1fr auto auto", gap: 16, alignItems: "baseline",
-            padding: "12px 0", borderBottom: "1px solid var(--border)", fontSize: "0.9rem", fontVariantNumeric: "tabular-nums",
+            padding: "13px 0", borderBottom: "1px solid var(--border)", fontSize: "0.9rem",
           }}>
-            <span>{fmtNight(c.night)}<span style={{ color: "var(--muted)", marginLeft: 8 }}>{fmtTime(c.bedtime)}</span></span>
-            <span style={{ color: "var(--muted)" }}>{Math.round(c.latency_min)} min</span>
+            <span>{fmtNight(c.night)}<span className="num" style={{ color: "var(--muted)", marginLeft: 10, fontSize: "0.75rem" }}>bed {fmtTime(c.bedtime)}</span></span>
+            <span className="num" style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{Math.round(c.latency_min)} min</span>
             <span aria-label={c.rested_1to5 ? `Rested ${c.rested_1to5} of 5` : "Rested not given"} style={{ display: "flex", gap: 3, width: 46 }}>
               {[1, 2, 3, 4, 5].map((n) => (
-                <span key={n} style={{ width: 6, height: 6, borderRadius: "50%", background: c.rested_1to5 && n <= c.rested_1to5 ? "var(--text)" : "var(--border)" }} />
+                <span key={n} style={{ width: 5, height: 5, borderRadius: "50%", background: c.rested_1to5 && n <= c.rested_1to5 ? "var(--text)" : "var(--border)" }} />
               ))}
             </span>
           </li>

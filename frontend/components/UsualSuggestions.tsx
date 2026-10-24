@@ -49,7 +49,7 @@ export default function UsualSuggestions({ drinks, onPick }: Props) {
         {top.map((d) => (
           <button key={`${d.drink_key}:${d.mg}`} className="pill" onClick={() => onPick(d)}>
             {label(d.drink_key)}
-            <span style={{ marginLeft: 6, color: "var(--muted)", fontVariantNumeric: "tabular-nums" }}>{Math.round(d.mg)} mg</span>
+            <span className="num" style={{ marginLeft: 8, fontSize: "0.75rem", color: "var(--muted)" }}>{Math.round(d.mg)} mg</span>
           </button>
         ))}
       </div>

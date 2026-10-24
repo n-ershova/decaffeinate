@@ -61,18 +61,18 @@ export default function CaptureInput({ onResult }: Props) {
     <div aria-busy={busy}>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <button className="btn" onClick={() => fileRef.current?.click()} disabled={busy}>
-          {busy ? "Recognising…" : "Take photo"}
+          {busy ? "Recognising…" : "Photograph your drink"}
         </button>
         <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={onFile} hidden />
       </div>
 
       <form
         onSubmit={(e) => { e.preventDefault(); if (text.trim()) send({ text: text.trim(), source: "text" }); }}
-        style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 20 }}
+        style={{ display: "flex", gap: 16, alignItems: "center", marginTop: 24 }}
       >
         <input
           className="field" value={text} onChange={(e) => setText(e.target.value)} disabled={busy}
-          placeholder="Or describe it — “large oat flat white”" aria-label="Describe your drink"
+          placeholder="Or describe it: large oat flat white" aria-label="Describe your drink"
         />
         <button type="submit" className="link" disabled={busy || !text.trim()} style={{ whiteSpace: "nowrap" }}>Add</button>
       </form>

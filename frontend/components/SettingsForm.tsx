@@ -41,7 +41,7 @@ export default function SettingsForm({ user, onSave }: Props) {
         <span className="eyebrow" style={{ display: "block" }}>Usual bedtime</span>
         <input className="field" type="time" value={bedtime} required
           onChange={(e) => { setBedtime(e.target.value); setState("idle"); }}
-          style={{ fontSize: "1.4rem", colorScheme: "inherit" }} />
+          style={{ fontSize: "2.5rem", colorScheme: "inherit" }} />
       </label>
 
       <div style={{ marginTop: 32 }}>

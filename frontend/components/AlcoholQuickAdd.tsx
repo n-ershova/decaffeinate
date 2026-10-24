@@ -13,12 +13,12 @@ const OPTIONS = [
 export default function AlcoholQuickAdd({ onAdd }: Props) {
   return (
     <div>
-      <p style={{ margin: "0 0 10px", fontSize: "0.8rem", color: "var(--muted)" }}>Alcohol</p>
+      <p className="eyebrow">Alcohol, for tonight&apos;s sleep</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         {OPTIONS.map((o) => (
           <button key={o.label} className="pill" onClick={() => onAdd(o.units)}>
             {o.label}
-            <span style={{ marginLeft: 6, color: "var(--muted)", fontVariantNumeric: "tabular-nums" }}>{o.units}u</span>
+            <span className="num" style={{ marginLeft: 8, fontSize: "0.75rem", color: "var(--muted)" }}>{o.units} u</span>
           </button>
         ))}
       </div>

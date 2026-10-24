@@ -14,7 +14,8 @@ export default function CheckinHistory({ checkins }: Props) {
 
   return (
     <section>
-      <p className="eyebrow">Check-ins</p>
+      <p style={{ margin: 0, fontSize: "0.95rem" }}>Your mornings</p>
+      <p className="caption" style={{ marginBottom: 12 }}>When you went to bed, how long it took to fall asleep, and how rested you felt.</p>
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {rows.map((c) => (
           <li key={c.night} style={{

@@ -58,13 +58,19 @@ export default function CaffeineCurve({ curve, bedtime, safeLineMg, compareCurve
 
   return (
     <figure style={{ margin: 0 }}>
-      <figcaption style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, fontSize: "0.8rem", color: MUTED }}>
-        <span>
-          In your system now <span className="num" style={{ color: "var(--text)", marginLeft: 6 }}>{Math.round(start.mg)} mg</span>
-        </span>
-        <span style={{ display: "flex", gap: 16 }}>
-          {compareCurve && <Legend color="var(--red)" dashed label="With another" />}
+      <figcaption>
+        <p style={{ margin: 0, fontSize: "0.95rem" }}>
+          Caffeine in your body now <span className="num" style={{ marginLeft: 6 }}>{Math.round(start.mg)} mg</span>
+        </p>
+        <p className="caption">
+          The line shows it wearing off between now and tomorrow morning. Once it drops below the
+          dotted <strong>sleep-safe line</strong>, it&apos;s low enough not to keep you awake.
+        </p>
+        <span style={{ display: "flex", gap: 16, marginTop: 14, fontSize: "0.78rem", color: MUTED }}>
+          <Legend color="var(--text)" label="Caffeine" />
+          {compareCurve && <Legend color="var(--red)" dashed label="If you have another" />}
           <Legend color="var(--green)" dashed label="Sleep-safe" />
+          {bed !== null && <Legend color={MUTED} label="Bedtime" />}
         </span>
       </figcaption>
 
@@ -86,7 +92,7 @@ export default function CaffeineCurve({ curve, bedtime, safeLineMg, compareCurve
             <Tooltip
               cursor={{ stroke: MUTED, strokeWidth: 1 }}
               labelFormatter={(v) => fmtTime(Number(v))}
-              formatter={(v, name) => [`${Math.round(Number(v))} mg`, name === "compare" ? "With another" : "Now"]}
+              formatter={(v, name) => [`${Math.round(Number(v))} mg`, name === "compare" ? "If you have another" : "Caffeine"]}
               contentStyle={{ background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 2, fontSize: 11, boxShadow: "none", padding: "6px 10px" }}
               itemStyle={{ color: "var(--text)", padding: 0 }}
               labelStyle={{ color: MUTED, marginBottom: 2 }}

@@ -19,6 +19,7 @@ export default function DailyCapBar({ totalMg, capMg }: Props) {
       >
         <div style={{ width: `${Math.min(100, (totalMg / capMg) * 100)}%`, height: 1, background: atCap ? "var(--red)" : "var(--text)", transition: "width 0.4s ease" }} />
       </div>
+      <p className="caption">{capMg} mg is the most a healthy adult should have in a day, about four cups of coffee.</p>
     </div>
   );
 }

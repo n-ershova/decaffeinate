@@ -25,7 +25,11 @@ export default function PosteriorChart({ history, posterior }: Props) {
 
   return (
     <section>
-      <p className="eyebrow">Your estimate, night by night</p>
+      <p style={{ margin: 0, fontSize: "0.95rem" }}>Getting more certain each night</p>
+      <p className="caption" style={{ marginBottom: 16 }}>
+        Each morning check-in teaches us more. The line is our best guess for your clearing time; the shaded band is
+        the likely range, and it narrows as we learn. The dotted line is the average person.
+      </p>
       <div style={{ width: "100%", height: 200 }}>
         <ResponsiveContainer>
           <ComposedChart data={band} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
@@ -35,8 +39,8 @@ export default function PosteriorChart({ history, posterior }: Props) {
               {...tooltipStyle}
               labelFormatter={(v) => fmtNight(String(v))}
               formatter={(v, name) => (name === "range"
-                ? [`${(v as number[])[0].toFixed(1)}–${(v as number[])[1].toFixed(1)} h`, "80% range"]
-                : [`${Number(v).toFixed(1)} h`, "Estimate"])}
+                ? [`${(v as number[])[0].toFixed(1)}–${(v as number[])[1].toFixed(1)} h`, "Likely range"]
+                : [`${Number(v).toFixed(1)} h`, "Best guess"])}
             />
             <ReferenceLine y={POP_H} stroke={MUTED} strokeDasharray="3 4" strokeOpacity={0.6}
               label={{ value: "Average", fill: MUTED, fontSize: 11, position: "insideBottomRight" }} />
@@ -46,7 +50,10 @@ export default function PosteriorChart({ history, posterior }: Props) {
         </ResponsiveContainer>
       </div>
 
-      <p className="eyebrow" style={{ marginTop: 32 }}>Where your half-life probably is</p>
+      <p style={{ margin: "40px 0 0", fontSize: "0.95rem" }}>Our best guess today</p>
+      <p className="caption" style={{ marginBottom: 12 }}>
+        The higher the curve, the more likely that clearing time is. A narrow peak means we&apos;re confident.
+      </p>
       <div style={{ width: "100%", height: 100 }}>
         <ResponsiveContainer>
           <AreaChart data={density} margin={{ top: 4, right: 8, bottom: 0, left: 8 }}>

@@ -98,7 +98,7 @@ export default function WhatIfPanel({ userId, baseCurve, bedtime, safeLineMg }: 
             )}
           </>
         )}
-        {!error && !x && !loading && <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--muted)" }}>Pick a drink to see the effect on tonight.</p>}
+        {!error && !x && !loading && <p className="caption" style={{ margin: 0 }}>Pick a drink to see how much longer it would take you to fall asleep tonight.</p>}
       </div>
 
       {result && (

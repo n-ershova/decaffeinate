@@ -177,12 +177,12 @@ export function fixtureProfile(now = new Date(), userId = 1): ProfileResponse {
       // Starts at the population prior and converges on the user's value; the band narrows.
       const k = 1 - Math.exp(-(i + 1) / 6);
       const mean = POP_H + (p.h - POP_H) * k;
-      const half = 1.28 * (2.4 * (1 - k) + p.sd * k);
+      const half = 1.28 * (3.4 * (1 - k) + p.sd * k);
       return {
         night: c.night,
         h_mean: Number(mean.toFixed(2)),
         h_low: Number(Math.max(1.5, mean - half).toFixed(2)),
-        h_high: Number((mean + half * 1.15).toFixed(2)),
+        h_high: Number((mean + half).toFixed(2)),
       };
     }),
     checkins,

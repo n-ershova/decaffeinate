@@ -126,3 +126,7 @@ input[type="range"] { accent-color: var(--ink); }
 /* Charts */
 .recharts-cartesian-axis-tick-value, .recharts-label { font-family: var(--mono); font-size: 10.5px; }
 .recharts-tooltip-wrapper .recharts-default-tooltip { font-family: var(--mono); }
+
+/* Plain-language explanation under a figure */
+.caption { margin: 8px 0 0; font-size: 0.82rem; line-height: 1.5; color: var(--graphite); max-width: 46ch; }
+.caption strong { font-weight: 400; color: var(--ink); }

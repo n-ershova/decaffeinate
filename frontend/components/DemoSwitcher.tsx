@@ -51,7 +51,8 @@ export default function DemoSwitcher() {
     return (
       <section style={{ maxWidth: 440 }}>
         <p style={{ margin: "0 0 20px", color: "var(--muted)" }}>
-          Two simulated people drink exactly the same coffee every day. One clears caffeine fast, one slowly. Watch the model tell them apart.
+          Two made-up people drink exactly the same coffee every day, but one body clears caffeine quickly and the other
+          slowly. Press play to watch the app work out which is which from their sleep alone.
         </p>
         <button className="btn" onClick={seed} disabled={loading}>{loading ? "Seeding…" : "Seed demo"}</button>
         {error && <p style={{ margin: "12px 0 0", fontSize: "0.85rem", color: "var(--red)" }}>Couldn&apos;t seed the demo.</p>}
@@ -94,6 +95,7 @@ export default function DemoSwitcher() {
                 Estimate {now.h_mean.toFixed(1)} h ({now.h_low.toFixed(1)}–{now.h_high.toFixed(1)}) · true {s.true_h} h
               </p>
               <MiniBand history={s.profile.history.slice(0, night)} total={nights} trueH={s.true_h} yMax={yMax} />
+              <p className="caption">Line: the app&apos;s guess for how many hours it takes this person to clear half their caffeine. Dotted: the true answer.</p>
             </article>
           );
         })}

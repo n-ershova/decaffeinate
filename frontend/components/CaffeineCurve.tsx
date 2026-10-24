@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Area, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Area, ComposedChart, Line, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import type { CurvePoint } from "@/lib/types";
 
@@ -12,6 +12,8 @@ interface Props {
   compareCurve?: CurvePoint[];
 }
 
+const HOUR = 3_600_000;
+const fmtHour = (ms: number) => String(new Date(ms).getHours()).padStart(2, "0");
 const fmtTime = (ms: number) =>
   new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 
@@ -24,64 +26,100 @@ function bedtimeMs(bedtime: string, from: number, to: number): number | null {
   return d.getTime() <= to ? d.getTime() : null;
 }
 
+/** Whole-hour ticks every `step` hours, so the axis reads 18 · 22 · 02 · 06 rather than 18:52. */
+function hourTicks(from: number, to: number, step = 4): number[] {
+  const d = new Date(from);
+  d.setMinutes(0, 0, 0);
+  d.setHours(Math.ceil((d.getHours() + (from > d.getTime() ? 1 : 0)) / step) * step);
+  const out: number[] = [];
+  for (let t = d.getTime(); t <= to; t += step * HOUR) if (t >= from) out.push(t);
+  return out;
+}
+
+const MUTED = "var(--muted)";
+
 export default function CaffeineCurve({ curve, bedtime, safeLineMg, compareCurve }: Props) {
-  if (curve.length === 0) return <div className="card">No curve yet.</div>;
+  if (curve.length === 0) return <div style={{ color: MUTED }}>No curve yet.</div>;
 
   const compare = new Map(compareCurve?.map((p) => [new Date(p.t).getTime(), p.mg]));
   const data = curve.map((p) => {
     const t = new Date(p.t).getTime();
     return { t, mg: p.mg, compare: compare.get(t) };
   });
-  const start = data[0].t;
+  const start = data[0];
   const end = data[data.length - 1].t;
-  const bed = bedtimeMs(bedtime, start, end);
+  const bed = bedtimeMs(bedtime, start.t, end);
   const peak = Math.max(...data.map((d) => Math.max(d.mg, d.compare ?? 0)), safeLineMg);
 
   return (
-    <div className="card" style={{ padding: "16px 8px 8px 0" }}>
-      <div style={{ width: "100%", height: 260 }}>
+    <figure style={{ margin: 0 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
+        <div>
+          <span style={{ fontSize: "2.25rem", fontWeight: 600, letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>
+            {Math.round(start.mg)}
+          </span>
+          <span style={{ color: MUTED, fontSize: "0.9rem", marginLeft: 6 }}>mg in your system</span>
+        </div>
+        <div style={{ display: "flex", gap: 14, fontSize: "0.75rem", color: MUTED }}>
+          {compareCurve && <Legend color="var(--red)" dashed label="If you have it" />}
+          <Legend color="var(--green)" dashed label="Safe line" />
+        </div>
+      </div>
+
+      <div style={{ width: "100%", height: 240 }}>
         <ResponsiveContainer>
-          <ComposedChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
+          <ComposedChart data={data} margin={{ top: 16, right: 4, bottom: 0, left: 4 }}>
             <defs>
               <linearGradient id="mgFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.5} />
-                <stop offset="100%" stopColor="var(--accent)" stopOpacity={0.04} />
+                <stop offset="0%" stopColor="var(--text)" stopOpacity={0.12} />
+                <stop offset="100%" stopColor="var(--text)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
-              dataKey="t" type="number" scale="time" domain={[start, end]}
-              tickFormatter={fmtTime} tickCount={6}
-              stroke="var(--muted)" tick={{ fontSize: 12 }} axisLine={{ stroke: "var(--border)" }} tickLine={false}
+              dataKey="t" type="number" scale="time" domain={[start.t, end]}
+              ticks={hourTicks(start.t, end)} tickFormatter={fmtHour}
+              stroke={MUTED} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickMargin={10}
             />
-            <YAxis
-              domain={[0, Math.ceil((peak * 1.1) / 50) * 50]} width={44} unit=" mg"
-              stroke="var(--muted)" tick={{ fontSize: 12 }} axisLine={false} tickLine={false}
-            />
+            <YAxis hide domain={[0, Math.ceil((peak * 1.1) / 50) * 50]} />
             <Tooltip
+              cursor={{ stroke: MUTED, strokeWidth: 1, strokeDasharray: "2 3" }}
               labelFormatter={(v) => fmtTime(Number(v))}
               formatter={(v, name) => [`${Math.round(Number(v))} mg`, name === "compare" ? "If you have it" : "Now"]}
-              contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 12, color: "var(--text)" }}
+              contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, boxShadow: "none", padding: "6px 10px" }}
+              itemStyle={{ color: "var(--text)", padding: 0 }}
+              labelStyle={{ color: MUTED, marginBottom: 2 }}
             />
-            <Area type="monotone" dataKey="mg" name="mg" stroke="var(--accent)" strokeWidth={2} fill="url(#mgFill)" isAnimationActive={false} />
-            {compareCurve && (
-              <Line
-                type="monotone" dataKey="compare" name="compare" stroke="var(--red)" strokeWidth={2}
-                strokeDasharray="6 4" dot={false} isAnimationActive={false}
-              />
-            )}
-            <ReferenceLine
-              y={safeLineMg} stroke="var(--green)" strokeDasharray="4 4"
-              label={{ value: `Safe line ${Math.round(safeLineMg)} mg`, fill: "var(--green)", fontSize: 12, position: "insideTopRight" }}
-            />
+            <ReferenceLine y={safeLineMg} stroke="var(--green)" strokeOpacity={0.7} strokeDasharray="3 4" />
             {bed !== null && (
               <ReferenceLine
-                x={bed} stroke="var(--muted)"
-                label={{ value: `Bed ${bedtime}`, fill: "var(--muted)", fontSize: 12, position: "insideTopLeft" }}
+                x={bed} stroke={MUTED} strokeOpacity={0.5}
+                label={{ value: `Bed ${bedtime}`, fill: MUTED, fontSize: 11, position: "insideTopRight", offset: 6 }}
               />
             )}
+            <Area
+              type="monotone" dataKey="mg" name="mg" stroke="var(--text)" strokeWidth={1.5}
+              fill="url(#mgFill)" isAnimationActive={false} activeDot={{ r: 3, strokeWidth: 0, fill: "var(--text)" }}
+            />
+            {compareCurve && (
+              <Line
+                type="monotone" dataKey="compare" name="compare" stroke="var(--red)" strokeWidth={1.5}
+                strokeDasharray="4 4" dot={false} isAnimationActive={false}
+                activeDot={{ r: 3, strokeWidth: 0, fill: "var(--red)" }}
+              />
+            )}
+            <ReferenceDot x={start.t} y={start.mg} r={3.5} fill="var(--text)" stroke="var(--bg)" strokeWidth={2} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </figure>
+  );
+}
+
+function Legend({ color, label, dashed }: { color: string; label: string; dashed?: boolean }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span style={{ width: 14, height: 0, borderTop: `1.5px ${dashed ? "dashed" : "solid"} ${color}` }} />
+      {label}
+    </span>
   );
 }

@@ -56,3 +56,11 @@ a { color: inherit; }
   .tab.active { background: var(--surface-2); }
   .main { padding: 40px 32px; max-width: 880px; margin: 0; }
 }
+
+/* Tap targets */
+.tile, .pill { font: inherit; color: var(--text); background: transparent; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.08s; }
+.tile:hover, .pill:hover { border-color: var(--muted); }
+.tile:active, .pill:active { transform: scale(0.97); background: var(--surface); }
+.tile:focus-visible, .pill:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.tile { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px; border-radius: 12px; text-align: left; min-height: 96px; }
+.pill { font-size: 0.85rem; padding: 6px 14px; border-radius: 999px; }

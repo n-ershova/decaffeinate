@@ -1,0 +1,7 @@
+{
+  "name": "halflife-presage",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=20"},
+  "dependencies": {"@smartspectra/node-sdk": "^3.4.0"}
+}

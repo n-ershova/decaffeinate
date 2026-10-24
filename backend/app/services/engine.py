@@ -122,3 +122,11 @@ class Engine:
                                 "label": summary.sensitivity_label},
                 "posterior": {"h_grid": post.h_grid.tolist(), "prob": post.h_prob.tolist()},
                 "history": history, "checkins": [s.model_dump(mode="json") for s in nights]}
+
+
+def simulate_history(user, true_h, true_beta, start, days, seed):
+    """D9 adapter; keep model imports centralized in the engine service."""
+    simulator = import_module("app.model.simulate")
+    curve_model = import_module("app.model.curve")
+    return simulator.simulate_user(user, true_h, true_beta, start, days, seed,
+                                   exposure_fn=curve_model.sleep_exposure)

@@ -4,25 +4,19 @@ interface Props {
 }
 
 export default function DailyCapBar({ totalMg, capMg }: Props) {
-  const pct = Math.min(100, (totalMg / capMg) * 100);
   const atCap = totalMg >= capMg;
-  const color = atCap ? "var(--red)" : "var(--text)";
+  const color = atCap ? "var(--red)" : "var(--muted)";
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: "0.85rem", color: "var(--muted)", marginBottom: 8 }}>
-        <span>Today</span>
-        <span style={{ fontVariantNumeric: "tabular-nums" }}>
-          <span style={{ color: atCap ? "var(--red)" : "var(--text)", fontWeight: 600 }}>{Math.round(totalMg)}</span> / {capMg} mg
-        </span>
-      </div>
       <div
-        role="progressbar" aria-valuemin={0} aria-valuemax={capMg} aria-valuenow={Math.min(totalMg, capMg)}
-        aria-label="Daily caffeine"
-        style={{ height: 4, borderRadius: 2, background: "var(--surface-2)", overflow: "hidden" }}
+        role="progressbar" aria-label="Daily caffeine" aria-valuemin={0} aria-valuemax={capMg} aria-valuenow={Math.min(totalMg, capMg)}
+        style={{ height: 2, background: "var(--border)" }}
       >
-        <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: 2, transition: "width 0.3s ease" }} />
+        <div style={{ width: `${Math.min(100, (totalMg / capMg) * 100)}%`, height: "100%", background: atCap ? "var(--red)" : "var(--text)", transition: "width 0.3s ease" }} />
       </div>
-      {atCap && <p style={{ margin: "8px 0 0", fontSize: "0.8rem", color: "var(--red)" }}>Daily limit reached</p>}
+      <p style={{ margin: "8px 0 0", fontSize: "0.8rem", color, fontVariantNumeric: "tabular-nums" }}>
+        {atCap ? `Daily limit reached · ${Math.round(totalMg)} mg` : `${Math.round(totalMg)} of ${capMg} mg today`}
+      </p>
     </div>
   );
 }

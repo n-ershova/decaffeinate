@@ -20,6 +20,8 @@ Tickets for the OxHack 2026 MVP, taken from [`halflife-whitepaper.md`](../halfli
 | **C** | Frontend | F1–F13, F15 |
 | **D** | Hardware, sponsors & ship | H1–H8, S1–S4 |
 
+For which ticket owns each component and file, see [OWNERSHIP.md](OWNERSHIP.md).
+
 Work top to bottom within your list. **Must** before **Should** before **Could**.
 
 ---

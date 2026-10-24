@@ -1,0 +1,222 @@
+[
+  {
+    "key": "espresso_shot",
+    "label": "Espresso",
+    "mg": 65,
+    "low": 50,
+    "high": 100,
+    "emoji": "☕",
+    "per": "shot",
+    "preset": true
+  },
+  {
+    "key": "milk_coffee",
+    "label": "Latte / flat white / cappuccino",
+    "mg": 65,
+    "low": 50,
+    "high": 100,
+    "emoji": "☕",
+    "per": "shot",
+    "preset": true
+  },
+  {
+    "key": "americano",
+    "label": "Americano",
+    "mg": 65,
+    "low": 50,
+    "high": 100,
+    "emoji": "☕",
+    "per": "shot",
+    "preset": true
+  },
+  {
+    "key": "mocha",
+    "label": "Mocha",
+    "mg": 65,
+    "low": 50,
+    "high": 100,
+    "emoji": "🍫",
+    "per": "shot",
+    "preset": true
+  },
+  {
+    "key": "filter_coffee",
+    "label": "Filter coffee",
+    "mg": 95,
+    "low": 70,
+    "high": 140,
+    "emoji": "☕",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "cold_brew",
+    "label": "Cold brew",
+    "mg": 200,
+    "low": 150,
+    "high": 250,
+    "emoji": "🧊",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "instant_coffee",
+    "label": "Instant coffee",
+    "mg": 60,
+    "low": 30,
+    "high": 90,
+    "emoji": "☕",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "capsule_coffee",
+    "label": "Capsule coffee",
+    "mg": 80,
+    "low": 60,
+    "high": 200,
+    "emoji": "☕",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "decaf",
+    "label": "Decaf",
+    "mg": 5,
+    "low": 2,
+    "high": 15,
+    "emoji": "☕",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "black_tea",
+    "label": "Black tea",
+    "mg": 45,
+    "low": 25,
+    "high": 70,
+    "emoji": "🫖",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "green_tea",
+    "label": "Green tea",
+    "mg": 30,
+    "low": 20,
+    "high": 45,
+    "emoji": "🍵",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "matcha",
+    "label": "Matcha",
+    "mg": 70,
+    "low": 60,
+    "high": 80,
+    "emoji": "🍵",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "chai_latte",
+    "label": "Chai latte",
+    "mg": 40,
+    "low": 25,
+    "high": 60,
+    "emoji": "🫖",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "yerba_mate",
+    "label": "Yerba mate",
+    "mg": 80,
+    "low": 65,
+    "high": 130,
+    "emoji": "🧉",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "iced_tea_bottled",
+    "label": "Bottled iced tea",
+    "mg": 25,
+    "low": 15,
+    "high": 50,
+    "emoji": "🧊",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "cola",
+    "label": "Cola (330 ml)",
+    "mg": 32,
+    "low": 30,
+    "high": 35,
+    "emoji": "🥤",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "diet_cola",
+    "label": "Diet cola (330 ml)",
+    "mg": 40,
+    "low": 35,
+    "high": 45,
+    "emoji": "🥤",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "red_bull",
+    "label": "Red Bull (250 ml)",
+    "mg": 80,
+    "low": 80,
+    "high": 80,
+    "emoji": "🥤",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "energy_drink_500",
+    "label": "Energy drink (500 ml)",
+    "mg": 160,
+    "low": 150,
+    "high": 170,
+    "emoji": "🥤",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "pre_workout",
+    "label": "Pre-workout",
+    "mg": 200,
+    "low": 150,
+    "high": 300,
+    "emoji": "🏋️",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "hot_chocolate",
+    "label": "Hot chocolate",
+    "mg": 10,
+    "low": 5,
+    "high": 15,
+    "emoji": "🍫",
+    "per": "serving",
+    "preset": true
+  },
+  {
+    "key": "herbal_tea",
+    "label": "Herbal tea",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "emoji": "🫖",
+    "per": "serving",
+    "preset": true
+  }
+]

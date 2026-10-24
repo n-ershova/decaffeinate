@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import MorningCheckin from "@/components/MorningCheckin";
+import { getSleepPending, useApi, useUserId } from "@/lib/api";
 
 const TABS = [
   { href: "/", label: "Today", icon: "M3 12a9 9 0 1 0 18 0A9 9 0 0 0 3 12Zm9-5v5l3 2" },
   { href: "/log", label: "Log", icon: "M12 5v14M5 12h14" },
   { href: "/you", label: "You", icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9a7 7 0 0 1 14 0" },
 ];
+
+const SKIP_KEY = "checkin_skipped";
+const skipped = (night: string) => { try { return localStorage.getItem(SKIP_KEY) === night; } catch { return false; } };
 
 const LONG_PRESS_MS = 700;
 
@@ -20,6 +25,21 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Hidden demo toggle: hold the logo.
   const press = () => { timer.current = setTimeout(() => router.push("/demo"), LONG_PRESS_MS); };
   const release = () => { if (timer.current) clearTimeout(timer.current); };
+
+  // Morning check-in: shown once per night on real screens, until saved or skipped.
+  const bare = path.startsWith("/onboarding") || path.startsWith("/dev");
+  const userId = useUserId();
+  const pending = useApi(userId && !bare ? `/sleep/pending?user_id=${userId}` : null, () => getSleepPending(userId!));
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  const night = pending.data?.night;
+  const showCheckin = !!pending.data?.needs_checkin && night !== dismissed && !skipped(night!);
+  const closeCheckin = () => {
+    try { localStorage.setItem(SKIP_KEY, night!); } catch { /* storage unavailable */ }
+    setDismissed(night!);
+    pending.mutate();
+  };
+
+  if (path.startsWith("/onboarding")) return <main className="main">{children}</main>;
 
   return (
     <div className="shell">
@@ -45,6 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
       </aside>
       <main className="main">{children}</main>
+      {showCheckin && userId && <MorningCheckin userId={userId} night={night!} onDone={closeCheckin} />}
     </div>
   );
 }

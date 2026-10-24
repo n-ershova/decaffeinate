@@ -52,7 +52,7 @@ export function getState(userId = 1): Promise<StateResponse> {
     return mock(() => {
       const now = new Date();
       const today = mockDrinks().filter((d) => sameDay(d.time, now));
-      const s = fixtureState(now, today);
+      const s = fixtureState(now, today, userId);
       s.bedtime = store.user.bedtime;
       return s;
     });
@@ -61,7 +61,12 @@ export function getState(userId = 1): Promise<StateResponse> {
 }
 
 export function getProfile(userId = 1): Promise<ProfileResponse> {
-  if (MOCK) return mock(() => ({ ...fixtureProfile(), checkins: mockSleep() }));
+  if (MOCK) {
+    return mock(() => {
+      const p = fixtureProfile(new Date(), userId);
+      return userId === 1 ? { ...p, checkins: mockSleep() } : p;
+    });
+  }
   return http(`/profile${qs({ user_id: userId })}`);
 }
 
@@ -169,7 +174,7 @@ export async function updateUser(id: number, patch: Partial<Pick<User, "bedtime"
 
 export async function seedDemo(): Promise<DemoSeedResponse> {
   const out = MOCK
-    ? await mock(() => ({ users: [{ id: 2, name: "Sam (slow)", true_h: 9 }, { id: 3, name: "Jo (fast)", true_h: 3.5 }] }))
+    ? await mock(() => ({ users: [{ id: 2, name: "Sam", true_h: 9 }, { id: 3, name: "Jo", true_h: 3.5 }] }))
     : await http<DemoSeedResponse>("/demo/seed", { method: "POST" });
   revalidate("/state");
   return out;
@@ -178,6 +183,25 @@ export async function seedDemo(): Promise<DemoSeedResponse> {
 export function postHr(userId: number, drinkTime: string | null, hr: number, br: number): Promise<HrCheck> {
   if (MOCK) return mock(() => fixtureHr(hr, br, drinkTime));
   return http("/hr", json("POST", { user_id: userId, drink_time: drinkTime, hr_bpm: hr, br_bpm: br }));
+}
+
+// ---- Current user ----
+
+/** The signed-in user's id from localStorage (set by onboarding), or null before onboarding. */
+export function storedUserId(): number | null {
+  try {
+    const v = localStorage.getItem("user_id");
+    return v ? Number(v) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Client-only: null on the server and first render, then the stored id (default 1). */
+export function useUserId(): number | null {
+  const [id, setId] = useState<number | null>(null);
+  useEffect(() => setId(storedUserId() ?? 1), []);
+  return id;
 }
 
 // ---- useApi: SWR-style hook ----

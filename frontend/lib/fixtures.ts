@@ -101,20 +101,21 @@ export function fixtureDrinkHistory(now = new Date()): Drink[] {
   return [...out, ...fixtureDrinksToday(now)];
 }
 
-export function fixtureState(now = new Date(), drinks = fixtureDrinksToday(now)): StateResponse {
-  const curve = buildCurve(drinks, now);
+export function fixtureState(now = new Date(), drinks = fixtureDrinksToday(now), userId = 1): StateResponse {
+  const p = MOCK_PROFILES[userId] ?? MOCK_PROFILES[1];
+  const curve = buildCurve(drinks, now, p.h);
   const total = drinks.reduce((s, d) => s + d.mg, 0);
   return {
     now_mg: curve[0].mg,
     bedtime: "23:30",
-    cutoff: "14:10",
-    headline: "Last coffee today by 14:10",
-    led: "amber",
+    cutoff: p.cutoff,
+    headline: p.cutoff ? `Last coffee today by ${p.cutoff}` : "No more caffeine today",
+    led: total >= 400 ? "red" : p.led,
     daily_total_mg: total,
     cap_mg: 400,
     curve,
     safe_line_mg: 38,
-    is_simulated: false,
+    is_simulated: userId !== 1,
   };
 }
 
@@ -138,7 +139,7 @@ export function fixtureSleep(now = new Date()): SleepNight[] {
   const lat = [18, 25, 14, 31, 22, 12, 35, 20, 17, 28, 15, 33, 19, 24, 13, 29, 21, 16, 34, 23, 26];
   return Array.from({ length: NIGHTS }, (_, i) => {
     const d = new Date(now);
-    d.setDate(d.getDate() - (NIGHTS - i));
+    d.setDate(d.getDate() - (NIGHTS + 1 - i)); // ends the night before last: last night is pending
     d.setHours(23, 30, 0, 0);
     return {
       night: dateOnly(d), user_id: 1, bedtime: isoLocal(d),
@@ -147,29 +148,41 @@ export function fixtureSleep(now = new Date()): SleepNight[] {
   });
 }
 
-export function fixtureProfile(now = new Date()): ProfileResponse {
+/** Mock users: 1 is "you"; 2 and 3 are the simulated demo pair (same habits, different true h). */
+export const MOCK_PROFILES: Record<number, { h: number; sd: number; beta: number; label: string; cutoff: string | null; led: "green" | "amber" | "red" }> = {
+  1: { h: 7.1, sd: 1.0, beta: 6.2, label: "Average sensitivity", cutoff: "14:10", led: "amber" },
+  2: { h: 9.0, sd: 0.9, beta: 7.0, label: "Above-average sensitivity", cutoff: "11:40", led: "red" },
+  3: { h: 3.5, sd: 0.5, beta: 5.1, label: "Average sensitivity", cutoff: "18:20", led: "green" },
+};
+const POP_H = 5;
+
+export function fixtureProfile(now = new Date(), userId = 1): ProfileResponse {
+  const p = MOCK_PROFILES[userId] ?? MOCK_PROFILES[1];
   const grid: number[] = [];
   const prob: number[] = [];
-  const mean = 7.1, sd = 1.0;
   for (let i = 0; i < 200; i++) {
     const h = 1.5 * Math.pow(15 / 1.5, i / 199);
     grid.push(Number(h.toFixed(3)));
-    prob.push(Math.exp(-0.5 * ((h - mean) / sd) ** 2));
+    // log-normal-ish around the mean, matching the log-h prior
+    prob.push(Math.exp(-0.5 * ((Math.log(h) - Math.log(p.h)) / (p.sd / p.h)) ** 2) / h);
   }
   const z = prob.reduce((a, b) => a + b, 0);
-  const checkins = fixtureSleep(now);
+  const checkins = fixtureSleep(now).map((c) => ({ ...c, user_id: userId }));
   return {
-    half_life: { mean, sd, ci80: [5.8, 8.4] },
-    population_mean_h: 5,
-    sensitivity: { mean: 6.2, sd: 2.1, label: "Average sensitivity" },
-    posterior: { h_grid: grid, prob: prob.map((p) => p / z) },
+    half_life: { mean: p.h, sd: p.sd, ci80: [Number((p.h - 1.28 * p.sd).toFixed(1)), Number((p.h + 1.28 * p.sd).toFixed(1))] },
+    population_mean_h: POP_H,
+    sensitivity: { mean: p.beta, sd: 2.1, label: p.label },
+    posterior: { h_grid: grid, prob: prob.map((x) => x / z) },
     history: checkins.map((c, i) => {
-      const spread = 4.5 * Math.pow(0.93, i); // tightens as nights accrue
+      // Starts at the population prior and converges on the user's value; the band narrows.
+      const k = 1 - Math.exp(-(i + 1) / 6);
+      const mean = POP_H + (p.h - POP_H) * k;
+      const half = 1.28 * (2.4 * (1 - k) + p.sd * k);
       return {
         night: c.night,
-        h_mean: Number((5 + (2.1 * (i + 1)) / NIGHTS).toFixed(2)),
-        h_low: Number(Math.max(1.5, 5 - spread / 2).toFixed(2)),
-        h_high: Number((5 + spread * 1.2).toFixed(2)),
+        h_mean: Number(mean.toFixed(2)),
+        h_low: Number(Math.max(1.5, mean - half).toFixed(2)),
+        h_high: Number((mean + half * 1.15).toFixed(2)),
       };
     }),
     checkins,

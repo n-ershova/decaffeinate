@@ -1,3 +1,10 @@
-export default function Page() {
-  return <div className="card">TODO demo</div>;
+import DemoSwitcher from "@/components/DemoSwitcher";
+
+export default function Demo() {
+  return (
+    <>
+      <h1>Demo</h1>
+      <DemoSwitcher />
+    </>
+  );
 }

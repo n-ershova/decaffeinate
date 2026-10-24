@@ -56,7 +56,7 @@ export default function OnboardingFlow({ onDone }: Props) {
 
       {step === "stop" && (
         <Screen
-          title="HalfLife isn't for you right now"
+          title="Decaffeinate isn't for you right now"
           body="Its guidance is for healthy adults. Please follow advice from your doctor or midwife on caffeine."
         >
           <button className="link" onClick={() => setStep("safety")}>Go back</button>

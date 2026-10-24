@@ -1,5 +1,5 @@
 {
-  "name": "halflife-web",
+  "name": "decaffeinate-web",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",

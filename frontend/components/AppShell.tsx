@@ -50,7 +50,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           onContextMenu={(e) => e.preventDefault()}
         >
           <span className="wordmark-mark" aria-hidden />
-          Halflife
+          Decaffeinate
         </div>
         <nav className="tabs" aria-label="Main">
           {TABS.map((t) => {

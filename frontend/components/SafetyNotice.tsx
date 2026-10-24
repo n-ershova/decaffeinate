@@ -1,9 +1,9 @@
 // Text from §17 (Limitations and safety).
 const POINTS = [
-  ["Not medical advice", "HalfLife gives general wellness guidance, not diagnosis or treatment."],
+  ["Not medical advice", "Decaffeinate gives general wellness guidance, not diagnosis or treatment."],
   ["Estimates, not measurements", "Caffeine levels are modelled from the drinks you log. Nothing measures your blood caffeine, so we show ranges, not single numbers."],
   ["Takes a few weeks", "Self-reported sleep is noisy. The model needs about 2 to 3 weeks of check-ins to become useful."],
-  ["Hard limits", "HalfLife never suggests drinking more, and stops at 400 mg a day, the limit for healthy adults."],
+  ["Hard limits", "Decaffeinate never suggests drinking more, and stops at 400 mg a day, the limit for healthy adults."],
   ["Not for everyone", "If you are pregnant, under 18, have a heart condition or take medication that interacts with caffeine, follow your doctor's advice instead."],
 ];
 

@@ -6,7 +6,7 @@ import {
   fixtureProfile, fixtureSleep, fixtureState, fixtureWhatIf, isoLocal,
 } from "./fixtures";
 import type {
-  Alcohol, CurvePoint, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, Preset, ProfileResponse,
+  Alcohol, CurvePoint, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, MachineStatus, Preset, ProfileResponse,
   SleepNight, Source, StateResponse, User, WhatIfResponse,
 } from "./types";
 
@@ -140,6 +140,12 @@ export function getSleepPending(userId = 1): Promise<{ needs_checkin: boolean; n
 export function getUser(id = 1): Promise<User> {
   if (MOCK) return mock(() => ({ ...store.user, id }));
   return http(`/users/${id}`);
+}
+
+/** Whether the desk machine has sent a heartbeat recently. */
+export function getMachine(): Promise<MachineStatus> {
+  if (MOCK) return mock(() => ({ online: true, last_seen: new Date().toISOString(), seconds_ago: 1 }));
+  return http("/machine");
 }
 
 /** Returns an object URL for the morning-brief audio. */

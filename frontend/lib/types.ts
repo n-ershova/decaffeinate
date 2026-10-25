@@ -150,3 +150,9 @@ export interface IdentifyResponse {
 export interface DemoSeedResponse {
   users: { id: number; name: string; true_h: number }[];
 }
+
+export interface MachineStatus {
+  online: boolean;
+  last_seen: string | null;
+  seconds_ago: number | null;
+}

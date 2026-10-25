@@ -96,6 +96,13 @@ code, pre, .num { font-family: var(--mono); font-feature-settings: "tnum"; }
 }
 .hint:hover::after { opacity: 1; transform: translateY(0); }
 
+/* Machine page: connection dot breathes while the machine is online. */
+.machine-online { animation: machine-online 2.4s ease-in-out infinite; }
+@keyframes machine-online {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 45%, transparent); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--green) 0%, transparent); }
+}
+
 /* Machine page: status light cycles through the decision colours. */
 .machine-led { fill: var(--green); animation: machine-led 9s infinite; }
 @keyframes machine-led {

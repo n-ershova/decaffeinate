@@ -1,3 +1,5 @@
+import MachineStatus from "@/components/MachineStatus";
+
 const LIGHTS = [
   { color: "var(--green)", label: "Green", body: "You can still have caffeine." },
   { color: "var(--amber)", label: "Amber", body: "Getting close to your cutoff." },
@@ -60,7 +62,10 @@ export default function Machine() {
         <p className="caption">A desk companion that logs your drinks and shows your status at a glance.</p>
       </header>
 
-      <Drawing />
+      <figure style={{ margin: 0, display: "grid", gap: 20 }}>
+        <Drawing />
+        <figcaption><MachineStatus /></figcaption>
+      </figure>
 
       <section>
         <p className="eyebrow">What it does</p>

@@ -16,7 +16,9 @@ export const viewport: Viewport = { themeColor: "#F4F4F1", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    // Browser extensions (e.g. Stencil-based ones adding class="hydrated") edit <html> before
+    // React loads; this ignores attribute differences on this one element only.
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body><AuthGate><AppShell>{children}</AppShell></AuthGate></body>
     </html>
   );

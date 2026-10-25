@@ -4,10 +4,11 @@ from pathlib import Path
 from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.auth import allowed_origins, protect
+from app.auth import LOCAL_ORIGIN, allowed_origins, local_origins_trusted, protect
 
 app = FastAPI(title="Halflife", version="0.1.0")
 app.add_middleware(CORSMiddleware, allow_origins=allowed_origins(), allow_credentials=True,
+                   allow_origin_regex=LOCAL_ORIGIN.pattern if local_origins_trusted() else None,
                    allow_methods=["GET", "POST", "PATCH", "DELETE"], allow_headers=["Content-Type"])
 
 @app.middleware("http")

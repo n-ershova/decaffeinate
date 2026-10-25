@@ -45,3 +45,17 @@ describe("account session requests", () => {
     expect(assign).toHaveBeenCalledWith("/login");
   });
 });
+
+describe("errorMessage", async () => {
+  const { errorMessage } = await import("./auth");
+  it("shows field errors instead of a generic message", () => {
+    const data = { detail: [{ loc: ["body", "password"], msg: "String should have at least 12 characters" }] };
+    expect(errorMessage(data, "fallback")).toBe("Password: String should have at least 12 characters");
+    expect(errorMessage({ detail: [{ loc: ["body", "email"], msg: "Value error, Enter a valid email address" }] }, "x"))
+      .toBe("Email: Enter a valid email address");
+  });
+  it("passes strings through and falls back otherwise", () => {
+    expect(errorMessage({ detail: "Email or password is incorrect" }, "x")).toBe("Email or password is incorrect");
+    expect(errorMessage(null, "fallback")).toBe("fallback");
+  });
+});

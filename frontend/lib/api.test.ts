@@ -47,3 +47,39 @@ describe("recognized drink ownership", () => {
     expect(form.get("user_id")).toBe(expected);
   });
 });
+
+describe("model fallback without NEXT_PUBLIC_MOCK_MODEL", () => {
+  beforeEach(() => {
+    vi.resetModules();
+    vi.stubEnv("NEXT_PUBLIC_MOCK", "0");
+    vi.stubEnv("NEXT_PUBLIC_MOCK_MODEL", "0");
+    vi.stubGlobal("localStorage", { getItem: () => "7" });
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  const backend = (stateStatus: number, detail: string) => vi.fn(async (url: string) => {
+    const path = new URL(url).pathname;
+    if (path === "/state") return Response.json({ detail }, { status: stateStatus });
+    if (path === "/drinks") return Response.json([]);
+    if (path === "/users/7") return Response.json({ id: 7, name: "A", bedtime: "22:00:00", smoker: false, hormonal_bc: false, tolerance_min: 10, is_simulated: false });
+    if (path === "/curve") return Response.json({ now_mg: 0, h: 5, curve: [{ t: new Date().toISOString(), mg: 0 }] });
+    return Response.json({}, { status: 404 });
+  });
+
+  it("uses stand-in numbers when the backend says the model isn't built", async () => {
+    vi.stubGlobal("fetch", backend(503, "Required model tickets are not installed yet"));
+    const { getState } = await import("./api");
+    const s = await getState(7);
+    expect(s.bedtime).toBe("22:00");
+    expect(s.headline).toMatch(/^Last coffee today by|No more caffeine today/);
+  });
+
+  it("still reports other server errors", async () => {
+    vi.stubGlobal("fetch", backend(503, "Presage is down"));
+    const { getState } = await import("./api");
+    await expect(getState(7)).rejects.toMatchObject({ status: 503, detail: "Presage is down" });
+  });
+});

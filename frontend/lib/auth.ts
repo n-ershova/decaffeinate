@@ -12,14 +12,25 @@ export async function sessionUser(): Promise<User | null> {
   return res.json();
 }
 
-export async function signIn(mode: "login" | "register", body: Record<string, unknown>): Promise<User> {
-  const res = await fetch(`${BASE}/auth/${mode}`, {
-    method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    throw new Error(typeof data?.detail === "string" ? data.detail : "Check your details and try again.");
+/**
+ * The reason a request failed, for showing to the user. FastAPI sends a string, or for
+ * invalid fields a list like [{loc: ["body", "password"], msg: "String should have…"}].
+ */
+export function errorMessage(data: unknown, fallback: string): string {
+  const detail = (data as { detail?: unknown } | null)?.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail) && detail.length) {
+    return detail.map((d: { loc?: unknown[]; msg?: string }) => {
+      const field = String(d.loc?.[d.loc.length - 1] ?? "").replace(/_/g, " ");
+      const msg = (d.msg ?? "is invalid").replace(/^Value error, /, "");
+      return field && field !== "body" ? `${field[0].toUpperCase()}${field.slice(1)}: ${msg}` : msg;
+    }).join(". ");
   }
+  return fallback;
+}
+
+export async function signIn(mode: "login" | "register", body: Record<string, unknown>): Promise<User> {
+  const res = await post(`/auth/${mode}`, body, "Check your details and try again.");
   const user: User = await res.json();
   clearApiCache();
   setStoredUserId(user.id);
@@ -27,13 +38,16 @@ export async function signIn(mode: "login" | "register", body: Record<string, un
 }
 
 async function post(path: string, body: unknown, fallback: string): Promise<Response> {
-  const res = await fetch(`${BASE}${path}`, {
-    method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    throw new Error(typeof data?.detail === "string" ? data.detail : fallback);
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    });
+  } catch {
+    // Backend not running, wrong NEXT_PUBLIC_API_URL, or this page's origin blocked by CORS.
+    throw new Error(`Can't reach the server at ${BASE}. Check the backend is running.`);
   }
+  if (!res.ok) throw new Error(errorMessage(await res.json().catch(() => null), fallback));
   return res;
 }
 

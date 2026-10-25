@@ -34,10 +34,29 @@ const sameDay = (iso: string, now: Date) => new Date(iso).toDateString() === now
 
 export class ApiError extends Error {
   readonly status: number;
-  constructor(message: string, status: number) {
+  readonly detail?: string;
+  constructor(message: string, status: number, detail?: string) {
     super(message);
     this.status = status;
+    this.detail = detail;
   }
+}
+
+// backend/app/main.py answers 503 with this while the M2–M7 model files are missing.
+const MODEL_MISSING = "Required model tickets are not installed yet";
+const modelMissing = (err: unknown) => err instanceof ApiError && err.status === 503 && err.detail === MODEL_MISSING;
+
+/**
+ * Model-backed reads: use `real`, unless NEXT_PUBLIC_MOCK_MODEL=1 or the backend
+ * reports the model isn't built, in which case use `stand_in` (fixtures plus real logs).
+ * The automatic switch means a fresh clone works without any .env.local.
+ */
+function withModel<T>(real: () => Promise<T>, standIn: () => Promise<T>): Promise<T> {
+  if (MOCK_MODEL) return standIn();
+  return real().catch((err) => {
+    if (modelMissing(err)) return standIn();
+    throw err;
+  });
 }
 
 /** Fired when the backend no longer knows the stored user (the in-memory repo forgets on restart). */
@@ -50,7 +69,11 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
     const body = await res.clone().json().catch(() => null);
     if (body?.detail === "Unknown user") window.dispatchEvent(new Event(UNKNOWN_USER_EVENT));
   }
-  if (!res.ok) throw new ApiError(`${init?.method ?? "GET"} ${path} failed: ${res.status}`, res.status);
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const detail = typeof body?.detail === "string" ? body.detail : undefined;
+    throw new ApiError(`${init?.method ?? "GET"} ${path} failed: ${res.status}`, res.status, detail);
+  }
   return res.json() as Promise<T>;
 }
 
@@ -77,14 +100,14 @@ export function getState(userId = 1, drink?: Preset): Promise<StateResponse> {
       return fixtureState(now, today, userId, drink, store.user.bedtime.slice(0, 5));
     });
   }
-  if (MOCK_MODEL) {
-    return Promise.all([getDrinks(userId, 1), getUser(userId), getCurve(userId)]).then(([drinks, user, c]) => {
+  return withModel(
+    () => http(`/state${qs({ user_id: userId, drink_key: drink?.key })}`),
+    () => Promise.all([getDrinks(userId, 1), getUser(userId), getCurve(userId)]).then(([drinks, user, c]) => {
       const now = new Date();
       const s = fixtureState(now, drinks.filter((d) => sameDay(d.time, now)), userId, drink, user.bedtime.slice(0, 5));
       return { ...s, now_mg: c.now_mg, curve: c.curve };
-    });
-  }
-  return http(`/state${qs({ user_id: userId, drink_key: drink?.key })}`);
+    }),
+  );
 }
 
 /** Caffeine in the body from now to 08:00, at the population half-life (M1 only). */
@@ -106,8 +129,10 @@ export function getProfile(userId = 1): Promise<ProfileResponse> {
       return userId === 1 ? { ...p, checkins: mockSleep() } : p;
     });
   }
-  if (MOCK_MODEL) return getSleep(userId).then((checkins) => ({ ...fixtureProfile(new Date(), userId), checkins }));
-  return http(`/profile${qs({ user_id: userId })}`);
+  return withModel(
+    () => http(`/profile${qs({ user_id: userId })}`),
+    () => getSleep(userId).then((checkins) => ({ ...fixtureProfile(new Date(), userId), checkins })),
+  );
 }
 
 export function getSleep(userId = 1): Promise<SleepNight[]> {
@@ -150,17 +175,25 @@ export function getMachine(): Promise<MachineStatus> {
 
 /** Returns an object URL for the morning-brief audio. */
 export async function getBrief(userId = 1): Promise<string> {
-  if (MOCK || MOCK_MODEL) return "";
-  const res = await fetch(`${BASE}/brief${qs({ user_id: userId })}`, { credentials: "include", cache: "no-store" });
-  if (!res.ok) throw new Error(`GET /brief failed: ${res.status}`);
-  return URL.createObjectURL(await res.blob());
+  if (MOCK) return "";
+  return withModel(async () => {
+    const res = await fetch(`${BASE}/brief${qs({ user_id: userId })}`, { credentials: "include", cache: "no-store" });
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new ApiError(`GET /brief failed: ${res.status}`, res.status, typeof body?.detail === "string" ? body.detail : undefined);
+    }
+    return URL.createObjectURL(await res.blob());
+  }, async () => "");
 }
 
 // ---- Writes (each revalidates /state, see below) ----
 
 export function whatIf(userId: number, drinkKey: string, mg: number): Promise<WhatIfResponse> {
-  if (MOCK || MOCK_MODEL) return mock(() => fixtureWhatIf(drinkKey, mg));
-  return http("/whatif", json("POST", { user_id: userId, drink_key: drinkKey, mg }));
+  if (MOCK) return mock(() => fixtureWhatIf(drinkKey, mg));
+  return withModel(
+    () => http("/whatif", json("POST", { user_id: userId, drink_key: drinkKey, mg })),
+    () => mock(() => fixtureWhatIf(drinkKey, mg)),
+  );
 }
 
 export async function identifyDrink(

@@ -48,7 +48,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
     };
   }, [path, router]);
 
-  if (error) return <main className="main"><p role="alert">Could not connect to the server.</p><button className="btn" onClick={() => window.location.reload()}>Try again</button></main>;
+  if (error) return <main className="main"><p role="alert">Could not connect to the server at {process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}. Check the backend is running.</p><button className="btn" onClick={() => window.location.reload()}>Try again</button></main>;
   if (PUBLIC.includes(path) && !userId) return children;
   if (!checked || !userId) return <main className="main"><p role="status">Checking your session…</p></main>;
   return <div key={userId}>{children}</div>;

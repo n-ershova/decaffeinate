@@ -3,6 +3,7 @@ from contextvars import ContextVar
 from datetime import datetime, timedelta, timezone
 import hashlib
 import hmac
+import re
 import secrets
 from threading import RLock
 from time import monotonic
@@ -190,9 +191,19 @@ def get_auth_store(repo=Depends(get_repo)):
 def allowed_origins():
     return [v.strip() for v in setting("FRONTEND_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",") if v.strip()]
 
+# In development (COOKIE_SECURE unset) any local frontend port is trusted, so `npm run dev`
+# falling back to :3001 doesn't make every request fail as if the server were down.
+LOCAL_ORIGIN = re.compile(r"^http://(localhost|127\.0\.0\.1)(:\d+)?$")
+
+def local_origins_trusted():
+    return setting("COOKIE_SECURE", "0") != "1"
+
+def origin_allowed(origin):
+    return origin in allowed_origins() or (local_origins_trusted() and bool(LOCAL_ORIGIN.match(origin)))
+
 def check_origin(request):
     origin = request.headers.get("origin")
-    if origin and origin not in allowed_origins():
+    if origin and not origin_allowed(origin):
         raise HTTPException(403, "Untrusted origin")
     if request.headers.get("sec-fetch-site") == "cross-site":
         raise HTTPException(403, "Cross-site request rejected")

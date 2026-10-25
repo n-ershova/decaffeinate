@@ -181,3 +181,14 @@ def test_register_with_account_details_only_then_save_onboarding_answers(secured
     assert updated.status_code == 200
     assert (updated.json()["bedtime"], updated.json()["smoker"], updated.json()["hormonal_bc"]) == ("22:30:00", True, True)
     assert c.patch(f"/users/{user['id']}", json={"smoker": None}).status_code == 422
+
+def test_any_local_port_is_trusted_in_development(secured_client, monkeypatch):
+    c = secured_client
+    for origin in ("http://localhost:3001", "http://127.0.0.1:4000"):
+        assert c.post("/auth/logout", headers={"Origin": origin}).status_code == 200
+        preflight = c.options("/auth/login", headers={"Origin": origin, "Access-Control-Request-Method": "POST"})
+        assert preflight.headers.get("access-control-allow-origin") == origin
+    assert c.post("/auth/logout", headers={"Origin": "http://192.168.1.5:3000"}).status_code == 403
+    assert c.post("/auth/logout", headers={"Origin": "http://localhost.evil.test"}).status_code == 403
+    monkeypatch.setenv("COOKIE_SECURE", "1")
+    assert c.post("/auth/logout", headers={"Origin": "http://localhost:3001"}).status_code == 403

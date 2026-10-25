@@ -6,7 +6,7 @@ import ConfirmCard from "@/components/ConfirmCard";
 import ConfirmDrawer from "@/components/ConfirmDrawer";
 import PresetGrid from "@/components/PresetGrid";
 import UsualSuggestions from "@/components/UsualSuggestions";
-import { getDrinks, getPresets, logDrink, revalidate, useApi, useUserId, type NewDrink } from "@/lib/api";
+import { getDrinks, getPresets, logDrink, useApi, useUserId, type NewDrink } from "@/lib/api";
 import { toast as popup } from "@/lib/toast";
 import type { IdentifyResponse } from "@/lib/types";
 
@@ -24,7 +24,6 @@ export default function Log() {
   async function add(d: NewDrink, name: string) {
     setResult(null);
     await logDrink({ ...d, user_id: userId! });
-    revalidate("/drinks");
     setToast(`Added ${name}, ${Math.round(d.mg)} mg`);
   }
 
@@ -42,7 +41,8 @@ export default function Log() {
         />
       ) : (
         <CaptureInput
-          onResult={(r) => { setToast(null); setResult(r); if (r.logged) { revalidate("/state"); popup("Logged"); } }}
+          userId={userId}
+          onResult={(r) => { setToast(null); setResult(r); if (r.logged) popup("Logged"); }}
           onManual={(mg, source) => add({ drink_key: "unknown", mg, mg_low: mg, mg_high: mg, source }, "Unknown")}
         />
       )}

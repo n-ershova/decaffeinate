@@ -44,7 +44,8 @@ export class ApiError extends Error {
 export const UNKNOWN_USER_EVENT = "unknown-user";
 
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, init);
+  const res = await fetch(`${BASE}${path}`, { ...init, credentials: "include", cache: "no-store" });
+  if (res.status === 401) window.dispatchEvent(new Event("session-expired"));
   if (res.status === 404) {
     const body = await res.clone().json().catch(() => null);
     if (body?.detail === "Unknown user") window.dispatchEvent(new Event(UNKNOWN_USER_EVENT));
@@ -151,7 +152,7 @@ export function getMachine(): Promise<MachineStatus> {
 /** Returns an object URL for the morning-brief audio. */
 export async function getBrief(userId = 1): Promise<string> {
   if (MOCK || MOCK_MODEL) return "";
-  const res = await fetch(`${BASE}/brief${qs({ user_id: userId })}`);
+  const res = await fetch(`${BASE}/brief${qs({ user_id: userId })}`, { credentials: "include", cache: "no-store" });
   if (!res.ok) throw new Error(`GET /brief failed: ${res.status}`);
   return URL.createObjectURL(await res.blob());
 }
@@ -171,10 +172,11 @@ export async function identifyDrink(
   if (input.image) form.append("image", input.image, "drink.jpg");
   if (input.text) form.append("text", input.text);
   form.append("source", input.source);
-  form.append("user_id", String(input.user_id ?? 1));
+  form.append("user_id", String(input.user_id ?? storedUserId() ?? 1));
   const out = await http<IdentifyResponse>("/drinks/identify", { method: "POST", body: form });
   // The backend logged it; mirror that into the mock store so reads stay consistent.
   if (MOCK && out.logged) mockDrinks().push(out.logged);
+  if (out.logged) revalidateDrinks();
   return out;
 }
 
@@ -185,8 +187,14 @@ export async function logDrink(d: NewDrink): Promise<Drink> {
   const out = MOCK
     ? await mock(() => (mockDrinks().push(drink), drink))
     : await http<Drink>("/drinks", json("POST", d));
-  revalidate("/state");
+  revalidateDrinks();
   return out;
+}
+
+function revalidateDrinks() {
+  revalidate("/drinks");
+  revalidate("/curve");
+  revalidate("/state");
 }
 
 /** Deletes the given user's drinks, identified by their `time`. */
@@ -287,7 +295,7 @@ export function useUserId(): number | null {
   const [id, setId] = useState<number | null>(null);
   useEffect(() => {
     // Layout components outlive onboarding, so follow later changes too.
-    const read = () => setId(storedUserId() ?? 1);
+    const read = () => setId(storedUserId() ?? (MOCK ? 1 : null));
     read();
     window.addEventListener(USER_EVENT, read);
     window.addEventListener("storage", read);
@@ -303,6 +311,7 @@ export function useUserId(): number | null {
 
 type Entry = { data?: unknown; error?: unknown; inflight?: Promise<void> };
 const cache = new Map<string, Entry>();
+export function clearApiCache(): void { cache.clear(); }
 const listeners = new Map<string, Set<() => void>>();
 const refetchers = new Map<string, Set<() => unknown>>();
 

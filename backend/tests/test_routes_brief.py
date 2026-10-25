@@ -14,7 +14,7 @@ def speech(monkeypatch,tmp_path):
         status=200
         async def __aenter__(self): return self
         async def __aexit__(self,*args): pass
-        async def get(self,url,params):
+        async def get(self,url,params,**kwargs):
             assert url == "http://127.0.0.1:8000/state"
             code=404 if params["user_id"]==999 else 200
             return httpx.Response(code,json=self.state,request=httpx.Request("GET",url))

@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.db.memory_repo import MemoryRepo
 from app.deps import get_engine, get_now, get_repo
 from app.main import app
+from app.auth import protect
 
 STATE = {"now_mg":142, "bedtime":"23:30", "cutoff":"14:10",
          "headline":"Last coffee today by 14:10", "led":"amber",
@@ -46,6 +47,9 @@ def api_engine():
 
 @pytest.fixture
 def client(api_repo, api_engine, now):
+    # Legacy contract tests exercise routes independently of authentication.
+    # Authentication and ownership have separate tests without this override.
+    app.dependency_overrides[protect] = lambda: None
     app.dependency_overrides[get_repo] = lambda: api_repo
     app.dependency_overrides[get_now] = lambda: now
     app.dependency_overrides[get_engine] = lambda: api_engine

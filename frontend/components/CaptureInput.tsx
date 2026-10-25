@@ -6,6 +6,7 @@ import CameraCapture from "@/components/CameraCapture";
 import type { IdentifyResponse, Source } from "@/lib/types";
 
 interface Props {
+  userId?: number;
   onResult: (result: IdentifyResponse) => void;
   /** Logs a typed caffeine amount when nothing matched; it is stored as an unknown drink. */
   onManual?: (mg: number, source: Source) => void;
@@ -33,7 +34,7 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   return Promise.race([p, new Promise<T>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))]);
 }
 
-export default function CaptureInput({ onResult, onManual }: Props) {
+export default function CaptureInput({ userId, onResult, onManual }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const textRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState("");
@@ -76,7 +77,7 @@ export default function CaptureInput({ onResult, onManual }: Props) {
     setMessage(null);
     setManual(null);
     try {
-      const result = await withTimeout(identifyDrink(input), TIMEOUT_MS);
+      const result = await withTimeout(identifyDrink({ ...input, user_id: userId }), TIMEOUT_MS);
       if (result.estimate.drink_key === "unknown") { unmatched(input.source, result); return; }
       onResult(result);
       setText("");

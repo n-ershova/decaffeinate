@@ -5,7 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import MorningCheckin from "@/components/MorningCheckin";
 import Toaster from "@/components/Toaster";
-import { UNKNOWN_USER_EVENT, getSleepPending, setStoredUserId, useApi, useUserId } from "@/lib/api";
+import { signOut } from "@/lib/auth";
+import { UNKNOWN_USER_EVENT, getSleepPending, getUser, setStoredUserId, useApi, useUserId } from "@/lib/api";
 
 const TABS = [
   { href: "/", label: "Today" },
@@ -32,13 +33,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const release = () => { if (timer.current) clearTimeout(timer.current); };
 
   // Morning check-in: shown once per night on real screens, until saved or skipped.
-  const bare = path.startsWith("/onboarding") || path.startsWith("/dev");
+  const bare = path.startsWith("/onboarding") || path.startsWith("/dev") || path === "/login";
   const userId = useUserId();
+  const profile = useApi(userId && !bare ? `/users/${userId}` : null, () => getUser(userId!));
   const pending = useApi(userId && !bare ? `/sleep/pending?user_id=${userId}` : null, () => getSleepPending(userId!));
   // The in-memory backend forgets users when it restarts; start onboarding again
   // rather than leaving every screen failing on a stale stored id.
   useEffect(() => {
-    const reset = () => { setStoredUserId(null); router.replace("/onboarding"); };
+    const reset = () => { setStoredUserId(null); router.replace("/login"); };
     window.addEventListener(UNKNOWN_USER_EVENT, reset);
     return () => window.removeEventListener(UNKNOWN_USER_EVENT, reset);
   }, [router]);
@@ -51,7 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     pending.mutate();
   };
 
-  if (path.startsWith("/onboarding")) return <main className="main">{children}</main>;
+  if (path.startsWith("/onboarding") || path === "/login") return <main className="main">{children}</main>;
 
   return (
     <div className="shell">
@@ -76,6 +78,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
       <main className="main">{children}</main>
+      <footer style={{ padding: "20px 24px", textAlign: "center" }}>
+        {profile.data && <p className="caption">Signed in as {profile.data.name}</p>}
+        <button className="link" onClick={() => signOut().catch(() => window.alert("Could not sign out. Please try again."))}>Sign out</button>
+      </footer>
       {showCheckin && userId && <MorningCheckin userId={userId} night={night!} onDone={closeCheckin} />}
       <Toaster />
     </div>

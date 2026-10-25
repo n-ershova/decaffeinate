@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useUserId } from "@/lib/api";
 import styles from "./hr.module.css";
 
 type Drink = { time: string; drink_key: string; mg: number };
@@ -11,7 +12,7 @@ const SETTLE_SECONDS = 5;
 const SCAN_SECONDS = 30;
 
 export default function HeartRatePage() {
-  const [userId, setUserId] = useState(1);
+  const userId = useUserId();
   const [drinks, setDrinks] = useState<Drink[]>([]);
   const [drinkTime, setDrinkTime] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -36,8 +37,6 @@ export default function HeartRatePage() {
 
   useEffect(() => {
     active.current = true;
-    const value = Number(new URLSearchParams(window.location.search).get("user_id") || 1);
-    setUserId(Number.isInteger(value) && value > 0 ? value : 1);
     return () => {
       active.current = false;
       cancelled.current = true;
@@ -48,8 +47,9 @@ export default function HeartRatePage() {
   }, []);
 
   useEffect(() => {
+    if (!userId) return;
     const controller = new AbortController();
-    fetch(API + "/drinks?user_id=" + userId + "&days=2", { signal: controller.signal })
+    fetch(API + "/drinks?user_id=" + userId + "&days=2", { credentials: "include", signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error("Could not load recent drinks.");
         return response.json() as Promise<Drink[]>;
@@ -74,6 +74,7 @@ export default function HeartRatePage() {
   }
 
   async function start() {
+    if (!userId) return;
     setError("");
     cancelled.current = false;
     setPhase("settling");
@@ -116,7 +117,7 @@ export default function HeartRatePage() {
         body.append("user_id", String(userId));
         if (drinkTime) body.append("drink_time", drinkTime);
         try {
-          const response = await fetch(API + "/hr/scan", { method: "POST", body, signal: abort.current.signal });
+          const response = await fetch(API + "/hr/scan", { method: "POST", credentials: "include", body, signal: abort.current.signal });
           const result = await response.json();
           if (!response.ok) throw new Error(result.detail || "The scan could not be processed.");
           if (active.current && !cancelled.current) setReading(result);

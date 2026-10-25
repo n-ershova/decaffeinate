@@ -7,6 +7,7 @@ from typing import Annotated
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from app.deps import ROOT, get_now, setting
+from app.auth import authorize_user, COOKIE
 
 router = APIRouter()
 
@@ -20,10 +21,12 @@ def brief_script(state: dict) -> str:
 @router.get("/brief")
 async def brief(request: Request, user_id: Annotated[int, Query(ge=1)] = 1,
                 now: datetime = Depends(get_now)):
+    authorize_user(user_id)
     base = setting("HALFLIFE_API", "http://127.0.0.1:8000").rstrip("/")
     try:
         async with httpx.AsyncClient(timeout=15) as client:
-            state_response = await client.get(f"{base}/state", params={"user_id": user_id})
+            state_response = await client.get(f"{base}/state", params={"user_id": user_id},
+                                              cookies={COOKIE: request.cookies.get(COOKIE, "")})
             if state_response.status_code == 404:
                 raise HTTPException(404, "Unknown user")
             if state_response.status_code == 503:

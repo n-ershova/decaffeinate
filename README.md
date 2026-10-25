@@ -1,6 +1,32 @@
 # decaffeinate
 Sip Smart — Sleep Smart
 
+## Accounts and private history
+
+Open http://localhost:3000/login and choose **Create an account**. Registration asks for an email,
+a password of at least 12 characters, a name and basic caffeine-profile settings. Sign in on another
+device with the same account to access the same records. Use **Sign out** at the bottom of the app
+before another person signs in on a shared computer.
+
+All personal API routes require an opaque HttpOnly, SameSite=Strict session cookie. Send requests
+with credentials included and the signed-in profile's ID; another profile's ID is rejected with 403.
+Sessions expire after seven days and logout revokes them on the server. Passwords use salted
+PBKDF2-SHA256 (600,000 iterations); only hashes of session tokens are stored. Login and registration
+are rate limited per server process/IP. `/auth/register`, `/auth/login`, `/auth/me`, and `/auth/logout`
+manage accounts; the old anonymous `/users` creation and shared demo seeding are unavailable through
+the authenticated app.
+
+With `REPO=tiger`, accounts and sessions persist in Tiger Data alongside profile records. Auth tables
+are created idempotently on first use or through `scripts/db_setup.py`. With `REPO=memory`, accounts
+and logs last only until the backend restarts. Existing anonymous profiles and records are preserved
+but are not automatically assigned to new accounts; migrate them administratively after confirming ownership.
+This release has no email verification or password-reset email flow.
+
+For deployment, serve both apps over HTTPS on the same site, set `COOKIE_SECURE=1`, and set
+`FRONTEND_ORIGINS` to the exact frontend origin(s), comma separated. The default origins and insecure
+cookie setting support local development only. Configure a trusted `HALFLIFE_API` for the internal
+spoken-brief call, which forwards the session cookie. Keep `NEXT_PUBLIC_MOCK=0` for real account data.
+
 ## Run the backend
 
 Python 3.11+ is recommended. From the repository root on Windows:
@@ -60,7 +86,7 @@ npm install
 
 Add PRESAGE_API_KEY to the root .env. If Node is not on PATH, set PRESAGE_NODE to the absolute node executable path. NEXT_PUBLIC_API_URL in frontend/.env.local defaults to http://localhost:8000.
 
-Open http://localhost:3000/hr (optionally ?user_id=4). The page suggests a scan about 45 minutes after a recent drink, requests the camera only after Start, records five settling seconds plus a 30-second scan, and displays the saved reading.
+Sign in, then open http://localhost:3000/hr. Scans use the signed-in account. The page suggests a scan about 45 minutes after a recent drink, requests the camera only after Start, records five settling seconds plus a 30-second scan, and displays the saved reading.
 
 The browser sends the recording to POST /hr/scan on your Halflife server. The server decodes MP4/WebM with the FFmpeg binary bundled by imageio-ffmpeg and feeds RGB frames into SmartSpectra's custom-input API. This avoids a Windows SDK file-reader failure. Frames are paced at 30 fps, and final accumulated metrics are drained before shutdown. Only stable pulse and breathing measurements with nonzero confidence are saved. The temporary video is deleted on success or error. Cancel releases the browser camera. POST /hr also accepts a reading produced by another Presage client. These readings do not alter the caffeine model.
 

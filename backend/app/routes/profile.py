@@ -4,12 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 import numpy as np
 from app.deps import get_engine, get_now
 from app.services.engine import Engine
+from app.auth import authorize_user
 
 router = APIRouter()
 
 @router.get("/profile")
 def profile(user_id: Annotated[int, Query(ge=1)] = 1,
             engine: Engine = Depends(get_engine), now: datetime = Depends(get_now)):
+    authorize_user(user_id)
     try:
         result = engine.profile(user_id, now)
     except KeyError:

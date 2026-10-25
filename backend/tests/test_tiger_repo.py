@@ -15,6 +15,24 @@ from psycopg.conninfo import make_conninfo
 from app.db.tiger_repo import TigerRepo
 from app.types import Alcohol, Drink, HrCheck, SleepNight, User
 
+def test_auth_persists_and_duplicate_registration_rolls_back(repo):
+    from app.auth import AuthStore
+    from fastapi import HTTPException
+    store = AuthStore(repo)
+    profile = {"name": "Account test", "bedtime": time(23), "smoker": False, "hormonal_bc": False}
+    account = store.register("test@example.test", "test-password-123!", profile)
+    token = store.session(account.id)
+    restored = AuthStore(repo)
+    assert restored.login("test@example.test", "test-password-123!").id == account.id
+    assert restored.resolve(token) == account.id
+    count = len(repo.list_users())
+    with pytest.raises(HTTPException) as error:
+        restored.register("test@example.test", "test-password-123!", profile)
+    assert error.value.status_code == 409
+    assert len(repo.list_users()) == count
+    restored.revoke(token)
+    assert store.resolve(token) is None
+
 
 @pytest.fixture
 def repo():

@@ -39,6 +39,8 @@ def get_now() -> datetime:
     return datetime.now(ZoneInfo(setting("HALFLIFE_TIMEZONE", "Europe/London")))
 
 def require_user(repo: Repo, user_id: int) -> User:
+    from app.auth import authorize_user
+    authorize_user(user_id)
     user = repo.get_user(user_id)
     if user is None:
         raise HTTPException(404, "Unknown user")

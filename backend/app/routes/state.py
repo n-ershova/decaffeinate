@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.deps import get_engine, get_now
 from app.services.engine import Engine
 from app.types import DRINK_KEYS
+from app.auth import authorize_user
 
 router = APIRouter()
 
@@ -17,6 +18,7 @@ class WhatIfRequest(BaseModel):
 @router.get("/state")
 def state(user_id: Annotated[int, Query(ge=1)] = 1,
           engine: Engine = Depends(get_engine), now: datetime = Depends(get_now)):
+    authorize_user(user_id)
     try:
         return engine.state(user_id, now)
     except KeyError:
@@ -25,6 +27,7 @@ def state(user_id: Annotated[int, Query(ge=1)] = 1,
 @router.get("/curve")
 def curve(user_id: Annotated[int, Query(ge=1)] = 1,
           engine: Engine = Depends(get_engine), now: datetime = Depends(get_now)):
+    authorize_user(user_id)
     try:
         return engine.curve(user_id, now)
     except KeyError:
@@ -32,6 +35,7 @@ def curve(user_id: Annotated[int, Query(ge=1)] = 1,
 
 @router.post("/whatif")
 def whatif(body: WhatIfRequest, engine: Engine = Depends(get_engine), now: datetime = Depends(get_now)):
+    authorize_user(body.user_id)
     try:
         return engine.whatif(body.user_id, now, body.drink_key, body.mg)
     except KeyError:

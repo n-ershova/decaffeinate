@@ -38,9 +38,18 @@ Copy-Item .env.example .env
 .\.venv\Scripts\python -m uvicorn app.main:app --app-dir backend --port 8000
 ```
 
+On macOS or Linux:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+cp .env.example .env
+.venv/bin/python -m uvicorn app.main:app --app-dir backend --port 8000 --reload
+```
+
 Copy the example only when you do not already have a local .env. Keep credentials in that ignored file. API documentation is available at http://localhost:8000/docs.
 
-Set REPO=memory for offline storage, or REPO=tiger and DATABASE_URL for Tiger Data. Apply the database schema with:
+Set REPO=memory for offline storage, or REPO=tiger and DATABASE_URL for Tiger Data. The memory store keeps nothing between restarts, and `--reload` restarts the server whenever a backend file changes, so users, drinks and check-ins vanish on every edit. The frontend notices when its stored user is gone and returns to onboarding. Use Tiger Data for anything you want to keep. Apply the database schema with:
 
 ```powershell
 .\.venv\Scripts\python scripts/db_setup.py
@@ -48,13 +57,67 @@ Set REPO=memory for offline storage, or REPO=tiger and DATABASE_URL for Tiger Da
 
 HALFLIFE_TIMEZONE defaults to Europe/London. Request timestamps must include UTC offsets. Onboarding user IDs start at 4; IDs 2 and 3 are reserved for demo users.
 
+## Run the frontend
+
+Node.js 20+:
+
+```sh
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:3000. frontend/.env.local (ignored) chooses where data comes from:
+
+| Variable | Effect |
+|---|---|
+| `NEXT_PUBLIC_MOCK=1` | Everything from fixtures; no backend needed |
+| `NEXT_PUBLIC_LIVE_IDENTIFY=1` | With mock mode, photo and text recognition still call the backend |
+| `NEXT_PUBLIC_MOCK_MODEL=1` | Backend for everything except /state, /profile, /whatif and /brief, which need the unbuilt model; those are built from fixtures plus your real logs, and the Today curve comes from GET /curve |
+| `NEXT_PUBLIC_API_URL` | Backend URL, default http://localhost:8000 |
+
+Until M2–M7 land, use `NEXT_PUBLIC_MOCK=0` with `NEXT_PUBLIC_MOCK_MODEL=1`. Restart `npm run dev` after changing these.
+
+```sh
+npm run typecheck
+```
+
 ## Routes and model dependencies
 
 The API includes state, what-if, profile, drink recognition, logging, onboarding/settings, demo seeding, heart-rate checks and spoken briefs. Health, logging, settings and recognition run independently of the model tickets.
 
-State/profile/what-if require M1–M7. POST /demo/seed requires M1 and M8. Until those modules are installed, the affected endpoints return 503 instead of inventing model predictions. Route tests override the engine and simulator as specified by the ticket board.
+Model status: M1 (backend/app/model/curve.py, caffeine curve and sleep exposure) is built; M2–M8 are not. The decay matches backend/model.py, a standalone calculator the engine does not use.
+
+| Needs | Endpoints |
+|---|---|
+| Nothing | /health, /users, /drinks, /alcohol, /sleep, /sleep/pending, /presets, /drinks/identify, /hr |
+| M1 | GET /curve |
+| M1–M7 | /state, /whatif, /profile, and /brief through /state |
+| M1 and M8 | POST /demo/seed |
+
+Until those modules are installed, the affected endpoints return 503 instead of inventing model predictions. Route tests override the engine and simulator as specified by the ticket board.
+
+Beyond the contract in tickets/00-CONTRACTS.md:
+
+- GET /curve?user_id returns `{now_mg, h, curve}`: caffeine in the body from now to 08:00 in 15-minute steps, at the population half-life (5 h) until M3 learns a personal one. It works before the rest of the model exists.
+- GET /sleep?user_id lists check-ins, newest night first, straight from storage.
+- DELETE /drinks and DELETE /sleep take `{user_id, times}` and `{user_id, nights}` and return `{deleted}`. They call Repo.delete_drinks and Repo.delete_sleep, which the storage protocol now includes.
 
 GET /profile aggregates posterior bins into at most 60 chart points while preserving probability mass.
+
+## Drink recognition (D2)
+
+Add GEMINI_API_KEY to the root .env; GEMINI_MODEL defaults to gemini-3.5-flash-lite and GEMINI_TIMEOUT_SECONDS to 6.
+
+POST /drinks/identify takes a photo or a text description. Gemini only names the drink, size, shots, decaf flag and any branded product, and copies caffeine text that is actually printed. It never estimates milligrams. backend/app/drinks/lookup.py turns that into caffeine, preferring a printed label, then a branded product in data/products.json, then data/drinks.json scaled by volume, then the table serving. Confident packaged, labelled or exact-product drinks under 400 mg are logged at once; everything else returns an estimate for the confirm card.
+
+data/drinks.json holds 113 drink keys, from espresso to water, regional coffees, teas and caffeinated food. A new key must also be added to DRINK_KEYS in backend/app/types.py, and the Gemini prompt in gemini.py should say when to use it. Only rows with `"preset": true` appear in the Log page's quick-pick list.
+
+Photo results are cached in data/gemini_cache by image hash; failures are never cached. Try a description from the command line:
+
+```sh
+cd backend && ../.venv/bin/python -m app.drinks.gemini --text "a can of Club-Mate"
+```
 
 ## Demo SQL
 
@@ -115,5 +178,7 @@ API reference: https://elevenlabs.io/docs/api-reference/text-to-speech/convert
 ```powershell
 .\.venv\Scripts\python -m pytest -q
 ```
+
+On macOS or Linux: `.venv/bin/python -m pytest -q`.
 
 Database tests read DATABASE_URL from the environment or root .env, run in temporary schemas, and skip when no database is configured. Vendor API calls and the model are mocked in route tests. Live Gemini, Presage and ElevenLabs checks are separate from this suite.

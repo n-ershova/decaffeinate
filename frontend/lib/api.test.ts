@@ -65,7 +65,8 @@ describe("model fallback without NEXT_PUBLIC_MOCK_MODEL", () => {
     if (path === "/state") return Response.json({ detail }, { status: stateStatus });
     if (path === "/drinks") return Response.json([]);
     if (path === "/users/7") return Response.json({ id: 7, name: "A", bedtime: "22:00:00", smoker: false, hormonal_bc: false, tolerance_min: 10, is_simulated: false });
-    if (path === "/curve") return Response.json({ now_mg: 0, h: 5, curve: [{ t: new Date().toISOString(), mg: 0 }] });
+    if (path === "/curve") return Response.json({ now_mg: 0, h: 5, curve: [{ t: new Date().toISOString(), mg: 0 }],
+      bedtime: "22:00", cutoff: "15:58", headline: "Last coffee today by 15:58", led: "green", safe_line_mg: 60 });
     return Response.json({}, { status: 404 });
   });
 
@@ -74,7 +75,8 @@ describe("model fallback without NEXT_PUBLIC_MOCK_MODEL", () => {
     const { getState } = await import("./api");
     const s = await getState(7);
     expect(s.bedtime).toBe("22:00");
-    expect(s.headline).toMatch(/^Last coffee today by|No more caffeine today/);
+    // The cutoff comes from GET /curve (backend/model.py), not the fixture.
+    expect(s).toMatchObject({ cutoff: "15:58", headline: "Last coffee today by 15:58", led: "green", safe_line_mg: 60 });
   });
 
   it("still reports other server errors", async () => {

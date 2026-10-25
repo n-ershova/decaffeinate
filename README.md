@@ -73,7 +73,7 @@ Open http://localhost:3000. frontend/.env.local (ignored) chooses where data com
 |---|---|
 | `NEXT_PUBLIC_MOCK=1` | Everything from fixtures; no backend needed |
 | `NEXT_PUBLIC_LIVE_IDENTIFY=1` | With mock mode, photo and text recognition still call the backend |
-| `NEXT_PUBLIC_MOCK_MODEL=1` | Backend for everything except /state, /profile, /whatif and /brief, which need the unbuilt model; those are built from fixtures plus your real logs, and the Today curve comes from GET /curve |
+| `NEXT_PUBLIC_MOCK_MODEL=1` | Backend for everything except /state, /profile, /whatif and /brief, which need the unbuilt model; those are built from fixtures plus your real logs, and the Today curve, cutoff, LED and safe line come from GET /curve |
 | `NEXT_PUBLIC_API_URL` | Backend URL, default http://localhost:8000 |
 
 Until M2–M7 land, use `NEXT_PUBLIC_MOCK=0` with `NEXT_PUBLIC_MOCK_MODEL=1`; the committed `frontend/.env.development` sets these for `npm run dev`, and `.env.local` overrides it. Restart `npm run dev` after changing these.
@@ -86,7 +86,7 @@ npm run typecheck
 
 The API includes state, what-if, profile, drink recognition, logging, onboarding/settings, demo seeding, heart-rate checks and spoken briefs. Health, logging, settings and recognition run independently of the model tickets.
 
-Model status: M1 (backend/app/model/curve.py, caffeine curve and sleep exposure) is built; M2–M8 are not. The decay matches backend/model.py, a standalone calculator the engine does not use.
+Model status: M1 (backend/app/model/curve.py, caffeine curve and sleep exposure) is built; M2–M8 are not. The decay matches backend/model.py, and curve.py's `latest_safe_drink` ports its cutoff (at most 60 mg in the body at bedtime) for the Today page.
 
 | Needs | Endpoints |
 |---|---|
@@ -99,7 +99,7 @@ Until those modules are installed, the affected endpoints return 503 instead of 
 
 Beyond the contract in tickets/00-CONTRACTS.md:
 
-- GET /curve?user_id returns `{now_mg, h, curve}`: caffeine in the body from now to 08:00 in 15-minute steps, at the population half-life (5 h) until M3 learns a personal one. It works before the rest of the model exists.
+- GET /curve?user_id&drink_key returns `{now_mg, h, curve, bedtime, cutoff, headline, led, safe_line_mg}`: caffeine in the body from now to 08:00 in 15-minute steps, at the population half-life (5 h) until M3 learns a personal one. It works before the rest of the model exists. `cutoff` is backend/model.py's `latest_safe_drink` for the chosen drink (default 130 mg coffee), null once that time has passed; `led` is green while another one now is still safe, amber when today's intake is safe but nothing more is, red when bedtime is over 60 mg; `safe_line_mg` is 60.
 - GET /sleep?user_id lists check-ins, newest night first, straight from storage.
 - DELETE /drinks and DELETE /sleep take `{user_id, times}` and `{user_id, nights}` and return `{deleted}`. They call Repo.delete_drinks and Repo.delete_sleep, which the storage protocol now includes.
 

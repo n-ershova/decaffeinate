@@ -62,13 +62,29 @@ class Engine:
         return [{"t": t.isoformat(), "mg": float(mg)} for t, mg in
                 m.curve.curve(drinks, now, end, h, step_min=15)]
 
-    def curve(self, user_id: int, now: datetime) -> dict:
-        """GET /curve: needs only M1, at the population half-life until M3 learns one."""
-        _, drinks, _, _, _, _ = self._load(user_id, now)
+    def curve(self, user_id: int, now: datetime, std_mg: float = 130, drink_label: str = "coffee") -> dict:
+        """GET /curve: needs only M1, at the population half-life until M3 learns one.
+
+        The cutoff and LED follow backend/model.py's CaffeineMonitor: at most
+        THRESHOLD_MG in the body at bedtime.
+        """
+        _, drinks, _, _, _, bedtime = self._load(user_id, now)
         m = SimpleNamespace(curve=import_module("app.model.curve"))
         h = m.curve.DEFAULT_H
+        cutoff = m.curve.latest_safe_drink(drinks, bedtime, std_mg, h)
+        if cutoff is not None and cutoff <= now:
+            cutoff = None  # the safe window has already closed
+        cutoff_text = cutoff.astimezone(now.tzinfo).strftime("%H:%M") if cutoff else None
+        # Green: another one now is still safe; amber: safe so far; red: over at bedtime.
+        if m.curve.bedtime_mg(drinks, bedtime, h) > m.curve.THRESHOLD_MG:
+            led = "red"
+        else:
+            led = "green" if cutoff else "amber"
         return {"now_mg": float(m.curve.amount_at(drinks, now, h)), "h": h,
-                "curve": self._curve(m, drinks, now, h)}
+                "curve": self._curve(m, drinks, now, h),
+                "bedtime": bedtime.strftime("%H:%M"), "cutoff": cutoff_text,
+                "headline": f"Last {drink_label} today by {cutoff_text}" if cutoff else "No more caffeine today",
+                "led": led, "safe_line_mg": float(m.curve.THRESHOLD_MG)}
 
     def state(self, user_id: int, now: datetime, std_mg: float = 130, drink_label: str = "coffee") -> dict:
         user, drinks, alcohol, nights, today, bedtime = self._load(user_id, now)

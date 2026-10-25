@@ -6,7 +6,7 @@ import {
   fixtureProfile, fixtureSleep, fixtureState, fixtureWhatIf, isoLocal,
 } from "./fixtures";
 import type {
-  Alcohol, CurvePoint, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, MachineLog, MachineStatus, Preset, ProfileResponse,
+  Alcohol, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, MachineLog, MachineStatus, Preset, ProfileResponse,
   SleepNight, Source, StateResponse, User, WhatIfResponse,
 } from "./types";
 
@@ -102,24 +102,33 @@ export function getState(userId = 1, drink?: Preset): Promise<StateResponse> {
   }
   return withModel(
     () => http(`/state${qs({ user_id: userId, drink_key: drink?.key })}`),
-    () => Promise.all([getDrinks(userId, 1), getUser(userId), getCurve(userId)]).then(([drinks, user, c]) => {
+    // The cutoff, LED and safe line are real too: GET /curve applies backend/model.py.
+    () => Promise.all([getDrinks(userId, 1), getUser(userId), getCurve(userId, drink)]).then(([drinks, user, c]) => {
       const now = new Date();
       const s = fixtureState(now, drinks.filter((d) => sameDay(d.time, now)), userId, drink, user.bedtime.slice(0, 5));
-      return { ...s, now_mg: c.now_mg, curve: c.curve };
+      const { h: _h, ...real } = c;
+      return { ...s, ...real };
     }),
   );
 }
 
-/** Caffeine in the body from now to 08:00, at the population half-life (M1 only). */
-export function getCurve(userId = 1): Promise<{ now_mg: number; h: number; curve: CurvePoint[] }> {
+export type CurveResponse = Pick<StateResponse, "now_mg" | "curve" | "bedtime" | "cutoff" | "headline" | "led" | "safe_line_mg">
+  & { h: number };
+
+/**
+ * Caffeine in the body from now to 08:00, at the population half-life (M1 only), and
+ * backend/model.py's cutoff: the latest `drink` (default a 130 mg coffee) that keeps bedtime safe.
+ */
+export function getCurve(userId = 1, drink?: Preset): Promise<CurveResponse> {
   if (MOCK) {
     return mock(() => {
       const now = new Date();
-      const curve = fixtureState(now, mockDrinks().filter((d) => sameDay(d.time, now)), userId).curve;
-      return { now_mg: curve[0].mg, h: 5, curve };
+      const { now_mg, curve, bedtime, cutoff, headline, led, safe_line_mg } =
+        fixtureState(now, mockDrinks().filter((d) => sameDay(d.time, now)), userId, drink, store.user.bedtime.slice(0, 5));
+      return { now_mg, h: 5, curve, bedtime, cutoff, headline, led, safe_line_mg };
     });
   }
-  return http(`/curve${qs({ user_id: userId })}`);
+  return http(`/curve${qs({ user_id: userId, drink_key: drink?.key })}`);
 }
 
 export function getProfile(userId = 1): Promise<ProfileResponse> {

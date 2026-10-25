@@ -43,3 +43,28 @@ def sleep_exposure(drinks: list[Drink], bedtime: datetime, h: float, window_h: f
             # Drunk during the window: only the part after drinking counts.
             total += d.mg * (1 - math.exp(-k * (window_h + before))) / (k * window_h)
     return total
+
+
+# The Today cutoff, as in CaffeineMonitor: sleep is safe with at most THRESHOLD_MG
+# in the body at bedtime.
+THRESHOLD_MG = 60
+
+
+def bedtime_mg(drinks: list[Drink], bedtime: datetime, h: float = DEFAULT_H) -> float:
+    """CaffeineMonitor.caffeine_at_bedtime."""
+    return amount_at(drinks, bedtime, h)
+
+
+def latest_safe_drink(drinks: list[Drink], bedtime: datetime, mg: float, h: float = DEFAULT_H,
+                      threshold: float = THRESHOLD_MG) -> datetime | None:
+    """CaffeineMonitor.latest_safe_drink: the latest time mg more keeps bedtime under threshold."""
+    k = bedtime_mg(drinks, bedtime, h)
+    if k >= threshold:
+        return None
+    if mg <= 0:
+        return bedtime
+    # Minutes before bed; ceil so the drink never lands just over the threshold.
+    t = max(0, math.ceil(h * math.log2(mg / (threshold - k)) * 60))
+    if t > 1440:
+        return None
+    return (bedtime.astimezone(timezone.utc) - timedelta(minutes=t)).astimezone(bedtime.tzinfo)

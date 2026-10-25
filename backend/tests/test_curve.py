@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from app.model.curve import DEFAULT_H, amount_at, curve, sleep_exposure
+from app.model.curve import DEFAULT_H, amount_at, bedtime_mg, curve, latest_safe_drink, sleep_exposure
 from app.types import Drink
 from model import CaffeineMonitor
 
@@ -54,3 +54,26 @@ def test_clocks_going_back():
     gaps = {(b[0] - a[0].astimezone(timezone.utc)).total_seconds() for a, b in zip(points, points[1:])}
     assert gaps == {900}
     assert points[-1][1] == pytest.approx(130 * 0.5 ** (8.5 / 5))
+
+
+def test_latest_safe_drink_matches_caffeine_monitor():
+    def at(hh, mm=0, day=24):
+        return datetime(2026, 10, day, hh, mm, tzinfo=timezone.utc)
+
+    for bed, cups, mg in [((23, 30), [((9, 0), 130), ((13, 15), 80)], 130),
+                          ((3, 0), [((15, 0), 48), ((17, 0), 48)], 48),
+                          ((22, 0), [], 130), ((22, 0), [((8, 0), 30)], 20)]:
+        monitor = CaffeineMonitor(bed)
+        for cup in cups:
+            monitor.drink_cup(*cup)
+        bedtime = at(*bed, day=25 if bed[0] < 12 else 24)
+        drinks = [drink(at(*t), a) for t, a in cups]
+        assert bedtime_mg(drinks, bedtime) == pytest.approx(monitor.caffeine_at_bedtime(monitor.cups))
+        got = latest_safe_drink(drinks, bedtime, mg)
+        assert (got.hour, got.minute) == monitor.latest_safe_drink(mg)
+
+
+def test_latest_safe_drink_none_when_over_or_too_big():
+    bedtime = datetime(2026, 10, 24, 23, tzinfo=timezone.utc)
+    assert latest_safe_drink([drink(bedtime.replace(hour=20), 200)], bedtime, 80) is None      # already over 60 mg at bedtime
+    assert latest_safe_drink([], bedtime, 60 * 2 ** 5) is None  # would need > 24 h to decay

@@ -38,3 +38,12 @@ def test_state_drink_choice(client):
     assert engine.state_kwargs == {"std_mg": 45, "drink_label": "Black tea"}
     assert client.get("/state?drink_key=herbal_tea").status_code == 422   # no caffeine
     assert client.get("/state?drink_key=invented").status_code == 422
+
+def test_curve_drink_choice(client):
+    from app.deps import get_engine
+    from app.main import app
+    engine = app.dependency_overrides[get_engine]()
+    assert client.get("/curve").status_code == 200 and engine.curve_kwargs == {}
+    assert client.get("/curve?drink_key=black_tea").status_code == 200
+    assert engine.curve_kwargs == {"std_mg": 45, "drink_label": "Black tea"}
+    assert client.get("/curve?drink_key=herbal_tea").status_code == 422

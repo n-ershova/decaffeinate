@@ -1,6 +1,7 @@
 """E1 runs in isolation until M1–M7 land; no substitute model ships in app/."""
 from datetime import date, datetime, time, timedelta, timezone
 import json
+import math
 from time import perf_counter
 from types import SimpleNamespace as NS
 from zoneinfo import ZoneInfo
@@ -197,3 +198,24 @@ def test_state_cutoff_for_a_chosen_drink(setup):
     assert calls.std_mg == 130
     result = service.state(1, now, std_mg=45, drink_label="Black tea")
     assert calls.std_mg == 45 and result["headline"] == "Last Black tea today by 16:30"
+
+
+def test_curve_cutoff_follows_caffeine_monitor(setup):
+    repo, service, now, _, _ = setup  # 16:00, bedtime 23:30
+    result = service.curve(1, now)
+    assert result["cutoff"] == "17:55" and result["led"] == "green"  # ceil(5 * log2(130 / 60) * 60) = 335 min before bed
+    repo.drinks = [drink(now.replace(hour=8), 130)]
+    k = 130 * 0.5 ** (15.5 / 5)
+    t = math.ceil(5 * math.log2(60 / (60 - k)) * 60)
+    expected = (now.replace(hour=23, minute=30) - timedelta(minutes=t)).strftime("%H:%M")
+    result = service.curve(1, now, std_mg=60, drink_label="Latte")
+    assert result["cutoff"] == expected and result["headline"] == f"Last Latte today by {expected}"
+    assert result["safe_line_mg"] == 60 and result["bedtime"] == "23:30"
+    repo.drinks = [drink(now - timedelta(hours=1), 400)]
+    result = service.curve(1, now)
+    assert result["cutoff"] is None and result["led"] == "red"
+    assert result["headline"] == "No more caffeine today"
+    json.dumps(result, allow_nan=False)
+    # The 130 mg default would be safe only by 15:51, already past: no cutoff.
+    repo.drinks = [drink(now.replace(hour=8), 130)]
+    assert service.curve(1, now)["cutoff"] is None

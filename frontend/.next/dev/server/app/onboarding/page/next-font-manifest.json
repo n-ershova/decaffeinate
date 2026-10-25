@@ -1,0 +1,11 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/app/onboarding/page": [
+      "static/media/GeistMono_Variable.p.3wg2gzp0j70gu.woff2",
+      "static/media/Geist_Variable-s.p.2py-ke1f706a6.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}

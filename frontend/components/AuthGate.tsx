@@ -5,6 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { sessionUser } from "@/lib/auth";
 import { clearApiCache, setStoredUserId } from "@/lib/api";
 
+// Reachable without a session: signing in or up, and setting a new password from an emailed link.
+const PUBLIC = ["/login", "/reset"];
+
 export default function AuthGate({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
@@ -25,8 +28,8 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
         });
         setStoredUserId(user?.id ?? null);
         setChecked(true);
-        if (!user && path !== "/login") router.replace("/login");
-        if (user && (path === "/login" || path === "/onboarding")) router.replace("/");
+        if (!user && !PUBLIC.includes(path)) router.replace("/login");
+        if (user && path === "/login") router.replace("/");
       } catch { if (active) setError(true); }
     }
     const expired = () => {
@@ -46,7 +49,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
   }, [path, router]);
 
   if (error) return <main className="main"><p role="alert">Could not connect to the server.</p><button className="btn" onClick={() => window.location.reload()}>Try again</button></main>;
-  if (path === "/login" && !userId) return children;
+  if (PUBLIC.includes(path) && !userId) return children;
   if (!checked || !userId) return <main className="main"><p role="status">Checking your session…</p></main>;
   return <div key={userId}>{children}</div>;
 }

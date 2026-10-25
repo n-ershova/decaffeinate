@@ -68,24 +68,23 @@ const qs = (params: Record<string, string | number | undefined>) => {
 
 // ---- Reads ----
 
-export function getState(userId = 1): Promise<StateResponse> {
+/** `drink` sets which drink the cutoff is for; without it, a standard 130 mg coffee. */
+export function getState(userId = 1, drink?: Preset): Promise<StateResponse> {
   if (MOCK) {
     return mock(() => {
       const now = new Date();
       const today = mockDrinks().filter((d) => sameDay(d.time, now));
-      const s = fixtureState(now, today, userId);
-      s.bedtime = store.user.bedtime;
-      return s;
+      return fixtureState(now, today, userId, drink, store.user.bedtime.slice(0, 5));
     });
   }
   if (MOCK_MODEL) {
     return Promise.all([getDrinks(userId, 1), getUser(userId), getCurve(userId)]).then(([drinks, user, c]) => {
       const now = new Date();
-      const s = fixtureState(now, drinks.filter((d) => sameDay(d.time, now)), userId);
-      return { ...s, bedtime: user.bedtime.slice(0, 5), now_mg: c.now_mg, curve: c.curve };
+      const s = fixtureState(now, drinks.filter((d) => sameDay(d.time, now)), userId, drink, user.bedtime.slice(0, 5));
+      return { ...s, now_mg: c.now_mg, curve: c.curve };
     });
   }
-  return http(`/state${qs({ user_id: userId })}`);
+  return http(`/state${qs({ user_id: userId, drink_key: drink?.key })}`);
 }
 
 /** Caffeine in the body from now to 08:00, at the population half-life (M1 only). */
@@ -246,7 +245,7 @@ export async function createUser(u: Pick<User, "name" | "bedtime" | "smoker" | "
   return out;
 }
 
-export async function updateUser(id: number, patch: Partial<Pick<User, "bedtime" | "tolerance_min">>): Promise<User> {
+export async function updateUser(id: number, patch: Partial<Pick<User, "bedtime" | "tolerance_min" | "smoker" | "hormonal_bc">>): Promise<User> {
   const out = MOCK
     ? await mock(() => (store.user = { ...store.user, ...patch }))
     : await http<User>(`/users/${id}`, json("PATCH", patch));

@@ -33,7 +33,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const release = () => { if (timer.current) clearTimeout(timer.current); };
 
   // Morning check-in: shown once per night on real screens, until saved or skipped.
-  const bare = path.startsWith("/onboarding") || path.startsWith("/dev") || path === "/login";
+  const bare = path.startsWith("/onboarding") || path.startsWith("/dev") || path === "/login" || path === "/reset";
   const userId = useUserId();
   const profile = useApi(userId && !bare ? `/users/${userId}` : null, () => getUser(userId!));
   const pending = useApi(userId && !bare ? `/sleep/pending?user_id=${userId}` : null, () => getSleepPending(userId!));
@@ -53,7 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     pending.mutate();
   };
 
-  if (path.startsWith("/onboarding") || path === "/login") return <main className="main">{children}</main>;
+  if (path.startsWith("/onboarding") || path === "/login" || path === "/reset") return <main className="main">{children}</main>;
 
   return (
     <div className="shell">

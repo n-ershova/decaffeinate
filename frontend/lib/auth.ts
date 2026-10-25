@@ -26,6 +26,31 @@ export async function signIn(mode: "login" | "register", body: Record<string, un
   return user;
 }
 
+async function post(path: string, body: unknown, fallback: string): Promise<Response> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(typeof data?.detail === "string" ? data.detail : fallback);
+  }
+  return res;
+}
+
+/** Emails a reset link if the account exists; the response is the same either way. */
+export async function requestPasswordReset(email: string): Promise<void> {
+  await post("/auth/forgot", { email }, "Could not send the reset link. Try again.");
+}
+
+/** Sets a new password from a reset link and signs in. */
+export async function resetPassword(token: string, password: string): Promise<User> {
+  const res = await post("/auth/reset", { token, password }, "Could not reset your password. Try again.");
+  const user: User = await res.json();
+  clearApiCache();
+  setStoredUserId(user.id);
+  return user;
+}
+
 export async function signOut(): Promise<void> {
   const res = await fetch(`${BASE}/auth/logout`, { method: "POST", credentials: "include" });
   if (!res.ok) throw new Error("Could not sign out. Please try again.");

@@ -19,8 +19,9 @@ PROFILE = {"half_life":{"mean":7.1,"sd":1,"ci80":[5.8,8.4]}, "population_mean_h"
            "history":[{"night":"2026-10-03","h_mean":5,"h_low":2.6,"h_high":9.4}], "checkins":[]}
 
 class FakeEngine:
-    def state(self, user_id, now):
+    def state(self, user_id, now, **kwargs):
         if user_id == 999: raise KeyError(user_id)
+        self.state_kwargs = kwargs
         return deepcopy(STATE)
     def curve(self, user_id, now):
         if user_id == 999: raise KeyError(user_id)

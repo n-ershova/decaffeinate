@@ -118,3 +118,66 @@ def test_device_presence_works_without_exposing_personal_history(secured_client)
     assert c.post("/machine/heartbeat").status_code == 200
     assert c.get("/machine").json()["online"] is True
     assert c.get("/drinks?user_id=1").status_code == 401
+
+@pytest.fixture
+def outbox(monkeypatch):
+    import app.routes.auth as auth_routes
+    sent = []
+    monkeypatch.setattr(auth_routes, "send_reset_link", lambda to, link: sent.append((to, link)))
+    return sent
+
+def reset_token(link):
+    from urllib.parse import parse_qs, urlsplit
+    return parse_qs(urlsplit(link).query)["token"][0]
+
+def test_password_reset_flow(secured_client, outbox):
+    c = secured_client
+    user_id = register(c).json()["id"]
+    assert c.post("/auth/forgot", json={"email": " Alice@Example.test "}).json() == {"ok": True}
+    [(to, link)] = outbox
+    assert to == "alice@example.test" and link.startswith("http://localhost:3000/reset?token=")
+    token = reset_token(link)
+
+    response = c.post("/auth/reset", json={"token": token, "password": "brand-new-password-1"})
+    assert response.status_code == 200 and response.json()["id"] == user_id
+    assert c.get("/auth/me").json()["id"] == user_id          # signed in with the new session
+    # Single use, and the old password no longer works.
+    assert c.post("/auth/reset", json={"token": token, "password": "another-password-12"}).status_code == 400
+    c.post("/auth/logout")
+    assert c.post("/auth/login", json={"email": "alice@example.test", "password": "test-password-123!"}).status_code == 401
+    assert c.post("/auth/login", json={"email": "alice@example.test", "password": "brand-new-password-1"}).status_code == 200
+
+def test_forgot_does_not_reveal_unknown_emails(secured_client, outbox):
+    assert secured_client.post("/auth/forgot", json={"email": "nobody@example.test"}).json() == {"ok": True}
+    assert outbox == []
+
+def test_reset_signs_out_other_sessions(secured_client, outbox, api_repo):
+    c = secured_client
+    register(c)
+    old_cookie = c.cookies.get(COOKIE)
+    c.post("/auth/forgot", json={"email": "alice@example.test"})
+    c.post("/auth/reset", json={"token": reset_token(outbox[0][1]), "password": "brand-new-password-1"})
+    assert get_auth_store(api_repo).resolve(old_cookie) is None
+
+def test_expired_and_bad_reset_tokens(secured_client, outbox, api_repo):
+    c = secured_client
+    register(c)
+    c.post("/auth/forgot", json={"email": "alice@example.test"})
+    token = reset_token(outbox[0][1])
+    store = get_auth_store(api_repo)
+    digest = hashlib.sha256(token.encode()).hexdigest()
+    store.resets[digest] = (store.resets[digest][0], datetime.now(timezone.utc) - timedelta(seconds=1))
+    assert c.post("/auth/reset", json={"token": token, "password": "brand-new-password-1"}).status_code == 400
+    assert c.post("/auth/reset", json={"token": "x" * 43, "password": "brand-new-password-1"}).status_code == 400
+    assert c.post("/auth/reset", json={"token": "x" * 43, "password": "short"}).status_code == 422
+
+def test_register_with_account_details_only_then_save_onboarding_answers(secured_client):
+    c = secured_client
+    response = c.post("/auth/register", json={"email": "carol@example.test", "password": "test-password-123!", "name": "Carol"})
+    assert response.status_code == 200
+    user = response.json()
+    assert (user["bedtime"], user["smoker"], user["hormonal_bc"]) == ("23:00:00", False, False)
+    updated = c.patch(f"/users/{user['id']}", json={"bedtime": "22:30", "smoker": True, "hormonal_bc": True})
+    assert updated.status_code == 200
+    assert (updated.json()["bedtime"], updated.json()["smoker"], updated.json()["hormonal_bc"]) == ("22:30:00", True, True)
+    assert c.patch(f"/users/{user['id']}", json={"smoker": None}).status_code == 422

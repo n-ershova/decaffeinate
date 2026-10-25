@@ -101,15 +101,32 @@ export function fixtureDrinkHistory(now = new Date()): Drink[] {
   return [...out, ...fixtureDrinksToday(now)];
 }
 
-export function fixtureState(now = new Date(), drinks = fixtureDrinksToday(now), userId = 1): StateResponse {
+/**
+ * Move a cutoff worked out for a 130 mg coffee to a drink of `mg`: a drink k times
+ * stronger needs h·log2(k) more hours to decay to the same amount by bedtime.
+ * Never later than bedtime; null when it would fall before midnight.
+ */
+export function cutoffForDrink(cutoff: string | null, h: number, mg: number, bedtime: string): string | null {
+  if (!cutoff) return null;
+  const mins = (t: string) => { const [hh, mm] = t.split(":").map(Number); return hh * 60 + mm; };
+  const moved = Math.min(mins(cutoff) - Math.round(h * Math.log2(mg / 130) * 60), mins(bedtime));
+  if (moved < 0) return null;
+  return `${String(Math.floor(moved / 60)).padStart(2, "0")}:${String(moved % 60).padStart(2, "0")}`;
+}
+
+export function fixtureState(
+  now = new Date(), drinks = fixtureDrinksToday(now), userId = 1,
+  drink?: Pick<Preset, "mg" | "label">, bedtime = "23:30",
+): StateResponse {
   const p = MOCK_PROFILES[userId] ?? MOCK_PROFILES[1];
   const curve = buildCurve(drinks, now, p.h);
   const total = drinks.reduce((s, d) => s + d.mg, 0);
+  const cutoff = drink ? cutoffForDrink(p.cutoff, p.h, drink.mg, bedtime) : p.cutoff;
   return {
     now_mg: curve[0].mg,
-    bedtime: "23:30",
-    cutoff: p.cutoff,
-    headline: p.cutoff ? `Last coffee today by ${p.cutoff}` : "No more caffeine today",
+    bedtime,
+    cutoff,
+    headline: cutoff ? `Last ${drink?.label ?? "coffee"} today by ${cutoff}` : "No more caffeine today",
     led: total >= 400 ? "red" : p.led,
     daily_total_mg: total,
     cap_mg: 400,

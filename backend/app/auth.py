@@ -13,6 +13,7 @@ from app.types import User
 
 COOKIE = "decaffeinate_session"
 SESSION_DAYS = 7
+RESET_MINUTES = 30
 current_user: ContextVar[int | None] = ContextVar("current_user", default=None)
 
 DDL = """
@@ -25,6 +26,10 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
  expires_at TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX IF NOT EXISTS auth_sessions_expiry ON auth_sessions(expires_at);
+CREATE TABLE IF NOT EXISTS auth_resets (
+ token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id),
+ expires_at TIMESTAMPTZ NOT NULL
+);
 """
 
 def password_hash(password: str, salt: str | None = None) -> str:
@@ -44,6 +49,7 @@ class AuthStore:
         self.accounts = {}
         self.sessions = {}
         self.attempts = {}
+        self.resets = {}
         # A missing account still performs the same slow hash as a real one.
         self.dummy_hash = "00" * 16 + "$" + "00" * 32
         if hasattr(repo, "pool"):
@@ -125,6 +131,54 @@ class AuthStore:
         else:
             with self.lock:
                 self.sessions.pop(digest, None)
+
+    def reset_token(self, email):
+        """A single-use password reset token, or None when no account has this email."""
+        token = secrets.token_urlsafe(32)
+        digest = hashlib.sha256(token.encode()).hexdigest()
+        expires = datetime.now(timezone.utc) + timedelta(minutes=RESET_MINUTES)
+        if hasattr(self.repo, "pool"):
+            with self.repo.pool.connection() as conn:
+                row = conn.execute("SELECT user_id FROM auth_accounts WHERE email=%s", (email,)).fetchone()
+                if not row:
+                    return None
+                conn.execute("DELETE FROM auth_resets WHERE expires_at <= now()")
+                conn.execute("INSERT INTO auth_resets VALUES (%s,%s,%s)", (digest, row["user_id"], expires))
+            return token
+        with self.lock:
+            account = self.accounts.get(email)
+            if not account:
+                return None
+            self.resets[digest] = (account[0], expires)
+        return token
+
+    def reset_password(self, token, password):
+        """Use a reset token: set the new password and sign the account out everywhere."""
+        digest = hashlib.sha256(token.encode()).hexdigest()
+        hashed = password_hash(password)
+        invalid = HTTPException(400, "This reset link is invalid or has expired")
+        if hasattr(self.repo, "pool"):
+            with self.repo.pool.connection() as conn:
+                row = conn.execute("DELETE FROM auth_resets WHERE token_hash=%s RETURNING user_id, expires_at",
+                                   (digest,)).fetchone()
+                if not row or row["expires_at"] <= datetime.now(timezone.utc):
+                    raise invalid
+                user_id = row["user_id"]
+                conn.execute("UPDATE auth_accounts SET password_hash=%s WHERE user_id=%s", (hashed, user_id))
+                conn.execute("DELETE FROM auth_sessions WHERE user_id=%s", (user_id,))
+                conn.execute("DELETE FROM auth_resets WHERE user_id=%s", (user_id,))
+            return self.repo.get_user(user_id)
+        with self.lock:
+            value = self.resets.pop(digest, None)
+            if not value or value[1] <= datetime.now(timezone.utc):
+                raise invalid
+            user_id = value[0]
+            for email, (owner, _) in list(self.accounts.items()):
+                if owner == user_id:
+                    self.accounts[email] = (owner, hashed)
+            self.sessions = {k: v for k, v in self.sessions.items() if v[0] != user_id}
+            self.resets = {k: v for k, v in self.resets.items() if v[0] != user_id}
+        return self.repo.get_user(user_id)
 
 _store_lock = RLock()
 def get_auth_store(repo=Depends(get_repo)):

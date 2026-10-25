@@ -28,3 +28,13 @@ def test_curve_contract(client):
     assert client.get("/curve").json() == {"now_mg":142, "h":5, "curve":STATE["curve"]}
     assert client.get("/curve?user_id=999").status_code == 404
     assert client.get("/curve?user_id=0").status_code == 422
+
+def test_state_drink_choice(client):
+    from app.deps import get_engine
+    from app.main import app
+    engine = app.dependency_overrides[get_engine]()
+    assert client.get("/state").status_code == 200 and engine.state_kwargs == {}
+    assert client.get("/state?drink_key=black_tea").status_code == 200
+    assert engine.state_kwargs == {"std_mg": 45, "drink_label": "Black tea"}
+    assert client.get("/state?drink_key=herbal_tea").status_code == 422   # no caffeine
+    assert client.get("/state?drink_key=invented").status_code == 422

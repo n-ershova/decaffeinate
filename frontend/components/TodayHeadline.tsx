@@ -1,9 +1,13 @@
-import type { Led } from "@/lib/types";
+import type { Led, Preset } from "@/lib/types";
 
 interface Props {
   headline: string;
   cutoff: string | null; // "HH:MM"
   led: Led;
+  /** Caffeinated drinks to choose the cutoff for; "" is a standard coffee. */
+  drinks?: Preset[];
+  drinkKey?: string;
+  onDrinkChange?: (key: string) => void;
 }
 
 const STATUS: Record<Led, string> = {
@@ -12,12 +16,25 @@ const STATUS: Record<Led, string> = {
   red: "Caffeine now will cost you sleep",
 };
 
-export default function TodayHeadline({ headline, cutoff, led }: Props) {
+export default function TodayHeadline({ headline, cutoff, led, drinks, drinkKey = "", onDrinkChange }: Props) {
   return (
     <header aria-label={headline}>
       <p style={{ margin: 0, display: "flex", alignItems: "center", gap: 10, fontSize: "0.85rem", color: "var(--muted)" }}>
         <span aria-hidden style={{ width: 6, height: 6, borderRadius: "50%", background: `var(--${led})` }} />
-        {cutoff ? "Last coffee today by" : STATUS[led]}
+        {cutoff && drinks && onDrinkChange ? (
+          <span>
+            Last{" "}
+            {/* The chosen name sets the width; an invisible native select on top keeps the OS picker. */}
+            <span className="inline-select">
+              {drinks.find((d) => d.key === drinkKey)?.label ?? "coffee"}
+              <select aria-label="Drink the cutoff is for" value={drinkKey} onChange={(e) => onDrinkChange(e.target.value)}>
+                <option value="">coffee</option>
+                {drinks.map((d) => <option key={d.key} value={d.key}>{d.label} · {Math.round(d.mg)} mg</option>)}
+              </select>
+            </span>{" "}
+            today by
+          </span>
+        ) : cutoff ? "Last coffee today by" : STATUS[led]}
       </p>
       {cutoff ? (
         <p aria-hidden style={{

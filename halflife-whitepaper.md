@@ -602,7 +602,7 @@ Order props so the most reliable recognition (a labelled can) happens first.
 - **Inference, not measurement.** Caffeine levels are estimated from logged drinks and a model; nothing measures blood caffeine. The app shows uncertainty ranges rather than single numbers.
 - **Noisy sleep data.** Self-reported sleep is imprecise and influenced by stress, exercise, screens and more. The model needs roughly 2 to 3 weeks to become useful.
 - **Hard limits.** Never recommends increasing intake; enforces a 400 mg daily cap for healthy adults.
-- **Not intended for** pregnancy, under-18s, or people with heart conditions or on medications that interact with caffeine. These users are told to follow medical guidance instead.
+- **Not intended for** pregnancy, under-18s, or people with heart or liver conditions or on medications that interact with caffeine. These users are told to follow medical guidance instead.
 - **Privacy.** The Jetson only sends cropped drink images. Health-adjacent data stays in the user's own database instance.
 
 ---

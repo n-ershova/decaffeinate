@@ -25,6 +25,8 @@ class UserUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     bedtime: time | None = None
     tolerance_min: Literal[5, 10, 20] | None = None
+    smoker: bool | None = None
+    hormonal_bc: bool | None = None
 
     @model_validator(mode="after")
     def nonnull_fields(self):

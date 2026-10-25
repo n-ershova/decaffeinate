@@ -49,8 +49,9 @@ def setup(monkeypatch):
         values = rng.normal(size=(n, 4))
         calls.samples.append(values.copy())
         return values
-    def cutoff(*args):
+    def cutoff(*args, std_mg=130):
         calls.decisions.append(args)
+        calls.std_mg = std_mg
         return args[2] + timedelta(minutes=30)
     def led(*args):
         calls.leds.append(args)
@@ -188,3 +189,11 @@ def test_curve_uses_real_m1_at_population_half_life(setup):
     json.dumps(result, allow_nan=False)
     with pytest.raises(KeyError):
         service.curve(999, now)
+
+def test_state_cutoff_for_a_chosen_drink(setup):
+    repo, service, now, calls, _ = setup
+    repo.drinks = [drink(now)]
+    assert service.state(1, now)["headline"].startswith("Last coffee today by")
+    assert calls.std_mg == 130
+    result = service.state(1, now, std_mg=45, drink_label="Black tea")
+    assert calls.std_mg == 45 and result["headline"] == "Last Black tea today by 16:30"

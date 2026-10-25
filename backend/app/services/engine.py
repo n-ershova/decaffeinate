@@ -70,7 +70,7 @@ class Engine:
         return {"now_mg": float(m.curve.amount_at(drinks, now, h)), "h": h,
                 "curve": self._curve(m, drinks, now, h)}
 
-    def state(self, user_id: int, now: datetime) -> dict:
+    def state(self, user_id: int, now: datetime, std_mg: float = 130, drink_label: str = "coffee") -> dict:
         user, drinks, alcohol, nights, today, bedtime = self._load(user_id, now)
         m = _models()
         post = self._fit(m, user, drinks, alcohol, nights)
@@ -80,11 +80,11 @@ class Engine:
         # Decisions need previous-day residual caffeine too, whereas the cap
         # only counts doses since local midnight.
         cutoff = m.decisions.cutoff(samples, drinks, now, bedtime, user.tolerance_min,
-                                    m.curve.sleep_exposure) if total < m.led.CAP_MG else None
+                                    m.curve.sleep_exposure, std_mg=std_mg) if total < m.led.CAP_MG else None
         cutoff_text = cutoff.astimezone(now.tzinfo).strftime("%H:%M") if cutoff else None
         return {"now_mg": float(m.curve.amount_at(drinks, now, summary.h_mean)),
                 "bedtime": bedtime.strftime("%H:%M"), "cutoff": cutoff_text,
-                "headline": f"Last coffee today by {cutoff_text}" if cutoff else "No more caffeine today",
+                "headline": f"Last {drink_label} today by {cutoff_text}" if cutoff else "No more caffeine today",
                 "led": m.led.led_state(samples, drinks, now, bedtime, user.tolerance_min,
                                        total, m.curve.sleep_exposure),
                 "daily_total_mg": total, "cap_mg": m.led.CAP_MG,

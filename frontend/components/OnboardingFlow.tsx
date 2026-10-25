@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { createUser, setStoredUserId } from "@/lib/api";
+import { storedUserId, updateUser } from "@/lib/api";
+import { signOut } from "@/lib/auth";
 import type { User } from "@/lib/types";
 
 interface Props {
@@ -13,19 +14,17 @@ const ORDER: Step[] = ["bedtime", "smoker", "contraception"];
 
 export default function OnboardingFlow({ onDone }: Props) {
   const [step, setStep] = useState<Step>("safety");
-  const [name, setName] = useState("");
   const [bedtime, setBedtime] = useState("23:00");
   const [smoker, setSmoker] = useState<boolean | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Runs right after sign-up: the account exists with defaults, and this saves the answers to it.
   async function finish(hormonal_bc: boolean) {
     setSaving(true);
     setError(null);
     try {
-      const user = await createUser({ name: name.trim() || "You", bedtime, smoker: !!smoker, hormonal_bc });
-      setStoredUserId(user.id);
-      onDone(user);
+      onDone(await updateUser(storedUserId()!, { bedtime, smoker: !!smoker, hormonal_bc }));
     } catch {
       setError("Couldn't save. Try again.");
       setSaving(false);
@@ -47,7 +46,7 @@ export default function OnboardingFlow({ onDone }: Props) {
       {step === "safety" && (
         <Screen
           title="Before we start"
-          body="Are any of these true for you? Pregnant or breastfeeding, under 18, a heart condition, or taking medication that interacts with caffeine."
+          body="Are any of these true for you? Pregnant or breastfeeding, under 18, a heart or liver condition, or taking medication that interacts with caffeine."
         >
           <button className="btn" onClick={() => setStep("bedtime")}>None of these</button>
           <button className="btn ghost" onClick={() => setStep("stop")}>One or more</button>
@@ -60,6 +59,7 @@ export default function OnboardingFlow({ onDone }: Props) {
           body="Its guidance is for healthy adults. Please follow advice from your doctor or midwife on caffeine."
         >
           <button className="link" onClick={() => setStep("safety")}>Go back</button>
+          <button className="link" onClick={() => signOut()}>Sign out</button>
         </Screen>
       )}
 
@@ -68,7 +68,6 @@ export default function OnboardingFlow({ onDone }: Props) {
           <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%" }}>
             <input className="field" type="time" value={bedtime} onChange={(e) => setBedtime(e.target.value)} aria-label="Bedtime"
               style={{ fontSize: "3rem", colorScheme: "inherit" }} />
-            <input className="field" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your first name (optional)" aria-label="Name" />
             <div><button className="btn" disabled={!bedtime} onClick={() => setStep("smoker")}>Continue</button></div>
           </div>
         </Screen>
@@ -88,7 +87,6 @@ export default function OnboardingFlow({ onDone }: Props) {
           {error && <p style={{ width: "100%", margin: "8px 0 0", fontSize: "0.85rem", color: "var(--red)" }}>{error}</p>}
         </Screen>
       )}
-
       {index > 0 && (
         <button className="link" style={{ marginTop: 40, fontSize: "0.85rem" }} disabled={saving} onClick={() => setStep(ORDER[index - 1])}>
           ← Back

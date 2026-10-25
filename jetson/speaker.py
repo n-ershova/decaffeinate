@@ -1,6 +1,6 @@
 """Says a logged drink out loud on the machine's speaker (POST /machine/announce).
 
-The backend turns "drink + mg" into ElevenLabs audio (the key stays on the server);
+The backend turns "drink + mg" into a spoken Gemini remark via ElevenLabs (keys stay on the server);
 this fetches the MP3 and plays it with whatever player the device has: afplay on a
 Mac, mpg123 or ffplay on the Jetson (sudo apt install mpg123).
 """
@@ -35,7 +35,7 @@ def fetch_audio(api, session, user_id, drink, mg, timeout_s=25.0):
 
 
 def announce(api, session, user_id, drink, mg, log):
-    """Speak 'Logged <drink>. <mg> milligrams of caffeine.' Problems go to the log, never raise."""
+    """Speak the backend's cheeky remark about this drink. Problems go to the log, never raise."""
     cmd = player()
     if cmd is None:
         log.emit("error", "can't announce: no audio player (install mpg123)")

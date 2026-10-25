@@ -6,6 +6,7 @@ import type { MachineLogKind } from "@/lib/types";
 
 const POLL_MS = 1500;
 const KEEP = 200;
+const VISIBLE = 10;   // newest lines shown; older ones fade out at the top
 
 type Line = { key: string; time: string; kind: MachineLogKind | "page"; message: string };
 
@@ -31,8 +32,6 @@ export default function MachineTerminal() {
   const inflight = useRef(false);
   const failing = useRef(false);
   const localId = useRef(0);
-  const box = useRef<HTMLDivElement>(null);
-  const stick = useRef(true);   // follow new lines unless the reader scrolled up
 
   const append = useCallback((next: Line[]) => {
     // Sorted by time: the page's own notes can arrive before older history from the server.
@@ -91,15 +90,8 @@ export default function MachineTerminal() {
     note(online ? "machine online" : "machine offline");
   }, [online, note]);
 
-  useEffect(() => {
-    const el = box.current;
-    if (el && stick.current) el.scrollTop = el.scrollHeight;
-  }, [lines]);
-
-  const onScroll = () => {
-    const el = box.current;
-    if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
-  };
+  const shown = lines.slice(-VISIBLE);
+  const faded = lines.length > VISIBLE;
 
   return (
     <section>
@@ -113,15 +105,16 @@ export default function MachineTerminal() {
           </button>
         )}
       </div>
-      <div ref={box} onScroll={onScroll} role="log" aria-live="polite" aria-label="Machine activity"
-        style={{ height: 240, overflowY: "auto", border: "1px solid var(--hairline)", borderRadius: 4,
-          background: "var(--surface)", padding: "10px 12px", fontFamily: "var(--mono)",
-          fontSize: "0.72rem", lineHeight: 1.7 }}>
+      <div role="log" aria-live="polite" aria-label="Machine activity"
+        style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", lineHeight: 1.8,
+          // Older lines fade into the page instead of scrolling.
+          ...(faded && { maskImage: "linear-gradient(to bottom, transparent, #000 30%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent, #000 30%)" }) }}>
         {userId === null ? (
           <span style={{ color: "var(--muted)" }}>Sign in to see your machine&apos;s activity.</span>
         ) : lines.length === 0 ? (
           <span style={{ color: "var(--muted)" }}>Waiting for the machine… hold a drink up to the camera.</span>
-        ) : lines.map((l) => (
+        ) : shown.map((l) => (
           <div key={l.key} style={{ display: "grid", gridTemplateColumns: "auto 7ch 1fr", gap: "0 10px" }}>
             <span className="num" style={{ color: "var(--muted)" }}>{clock(l.time)}</span>
             <span style={{ color: TAG[l.kind].color }}>{TAG[l.kind].label}</span>

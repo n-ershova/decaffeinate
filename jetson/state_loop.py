@@ -4,6 +4,10 @@ Polls the backend's GET /state every couple of seconds and shows its "led"
 field (green / amber / red) on the desk LED. The backend decides the colour;
 the Jetson only displays it.
 
+Alongside, it POSTs /machine/heartbeat every poll so the app's machine page
+can show the device as online. Heartbeats run in their own thread, so a slow
+network never delays the LED.
+
 If /state fails 3 times in a row (backend down, Wi-Fi gone, bad response),
 the LED slowly blinks amber until the backend answers again, then returns to
 the real colour.
@@ -42,8 +46,25 @@ def fetch_led(url, timeout_s):
         return None
 
 
+def send_heartbeat(api, timeout_s):
+    """Tell the backend the machine is alive. Best effort: True if it answered 2xx."""
+    req = urllib.request.Request(f"{api.rstrip('/')}/machine/heartbeat", data=b"", method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_s) as r:
+            return 200 <= r.status < 300
+    except Exception:
+        return False
+
+
+def run_heartbeat(api, interval_s=2.0, stop=None, timeout_s=1.5):
+    stop = stop or threading.Event()
+    while not stop.is_set():
+        send_heartbeat(api, timeout_s)
+        stop.wait(interval_s)
+
+
 def run_state_loop(api, led, interval_s=2.0, stop=None, *,
-                   user_id=None, timeout_s=None, max_failures=3, blink_s=1.0):
+                   user_id=None, timeout_s=None, max_failures=3, blink_s=1.0, heartbeat=True):
     """Keep `led` in sync with GET {api}/state until `stop` is set.
 
     Calls led.set() only when the colour changes, so a capture flash from the
@@ -55,6 +76,9 @@ def run_state_loop(api, led, interval_s=2.0, stop=None, *,
     if timeout_s is None:
         timeout_s = min(1.5, interval_s)
     url = state_url(api, user_id)
+    if heartbeat:
+        threading.Thread(target=run_heartbeat, args=(api, interval_s, stop, timeout_s),
+                         daemon=True, name="heartbeat").start()
 
     failures = 0
     shown = None          # last colour this loop told the LED to show

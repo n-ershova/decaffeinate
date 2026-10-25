@@ -1,0 +1,3 @@
+# Built per device by export_engine.sh; never commit weights or engines.
+*
+!.gitignore

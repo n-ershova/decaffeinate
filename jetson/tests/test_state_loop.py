@@ -40,6 +40,7 @@ class FakeBackend:
         self.status = 200
         self.body = None          # raw bytes override, for bad-JSON tests
         self.paths = []
+        self.heartbeats = 0
         backend = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -52,6 +53,12 @@ class FakeBackend:
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(body)
+
+            def do_POST(self):
+                if self.path == "/machine/heartbeat":
+                    backend.heartbeats += 1
+                self.send_response(200)
+                self.end_headers()
 
             def log_message(self, *a):
                 pass
@@ -116,6 +123,17 @@ def test_sends_user_id(backend, start_loop):
     start_loop(backend.api, led, user_id=2)
     assert wait_until(lambda: backend.paths)
     assert backend.paths[0] == "/state?user_id=2"
+
+
+def test_sends_heartbeats(backend, start_loop):
+    start_loop(backend.api, FakeLed())
+    assert wait_until(lambda: backend.heartbeats >= 2)
+
+
+def test_heartbeat_can_be_turned_off(backend, start_loop):
+    start_loop(backend.api, FakeLed(), heartbeat=False)
+    assert wait_until(lambda: len(backend.paths) >= 3)
+    assert backend.heartbeats == 0
 
 
 def test_offline_blinks_amber_then_recovers(backend, start_loop):

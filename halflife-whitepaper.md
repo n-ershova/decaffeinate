@@ -1,4 +1,4 @@
-# Halflife: Personalised Caffeine Timing
+# Decaffeinate
 
 **Know your last cup.**
 

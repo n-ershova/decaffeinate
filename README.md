@@ -76,7 +76,7 @@ Open http://localhost:3000. frontend/.env.local (ignored) chooses where data com
 | `NEXT_PUBLIC_MOCK_MODEL=1` | Backend for everything except /state, /profile, /whatif and /brief, which need the unbuilt model; those are built from fixtures plus your real logs, and the Today curve comes from GET /curve |
 | `NEXT_PUBLIC_API_URL` | Backend URL, default http://localhost:8000 |
 
-Until M2–M7 land, use `NEXT_PUBLIC_MOCK=0` with `NEXT_PUBLIC_MOCK_MODEL=1`. Restart `npm run dev` after changing these.
+Until M2–M7 land, use `NEXT_PUBLIC_MOCK=0` with `NEXT_PUBLIC_MOCK_MODEL=1`; the committed `frontend/.env.development` sets these for `npm run dev`, and `.env.local` overrides it. Restart `npm run dev` after changing these.
 
 ```sh
 npm run typecheck

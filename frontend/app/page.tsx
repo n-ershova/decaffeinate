@@ -7,7 +7,7 @@ import CaffeineCurve from "@/components/CaffeineCurve";
 import DailyCapBar from "@/components/DailyCapBar";
 import TodayHeadline from "@/components/TodayHeadline";
 import CutoffCountdown, { cutoffDeadline } from "@/components/CutoffCountdown";
-import { getPresets, getState, getUser, storedUserId, useApi, useUserId } from "@/lib/api";
+import { ApiError, getPresets, getState, getUser, storedUserId, useApi, useUserId } from "@/lib/api";
 
 const DRINK_KEY = "cutoff_drink";
 
@@ -42,7 +42,14 @@ export default function Today() {
   const s = fresh ?? last.current;
   const deadline = useMemo(() => cutoffDeadline(s?.cutoff ?? null, new Date()), [s]);
 
-  if (error) return <p style={{ color: "var(--muted)" }}>Couldn&apos;t reach the server.</p>;
+  if (error && !s) {
+    // 503: the backend is up but the M2–M7 model isn't built; set NEXT_PUBLIC_MOCK_MODEL=1 (see README).
+    const message = error instanceof ApiError
+      ? error.status === 503 ? "Today's numbers need the caffeine model, which isn't built yet."
+        : `The server couldn't load today (error ${error.status}).`
+      : "Couldn't reach the server.";
+    return <p style={{ color: "var(--muted)" }}>{message}</p>;
+  }
   if (!s) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
   const hour = now?.getHours();

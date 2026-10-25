@@ -66,3 +66,47 @@ def test_names_as_list_work():
 def test_model_without_drink_classes_is_rejected():
     with pytest.raises(ValueError):
         Detector(FakeYOLO([], names={0: "person"}))
+
+
+class FakeTrackYOLO(FakeYOLO):
+    """Adds .track(): rows carry a 7th column, the ByteTrack id."""
+
+    def __init__(self, frames, names=COCO):
+        super().__init__([], names)
+        self.frames = iter(frames)   # one list of rows per call
+
+    def track(self, frame, **kwargs):
+        self.kwargs = kwargs
+        a = np.array(next(self.frames), dtype=float).reshape(-1, 7)
+        ids = a[:, 6] if len(a) else None
+        return [SimpleNamespace(boxes=SimpleNamespace(xyxy=a[:, :4], cls=a[:, 4], conf=a[:, 5], id=ids))]
+
+
+def test_track_uses_bytetrack_with_low_conf_and_agnostic_nms():
+    model = FakeTrackYOLO([[]])
+    det = Detector(model)
+    det.track(FRAME)
+    assert model.kwargs["persist"] is True and model.kwargs["tracker"].endswith("bytetrack.yaml")
+    assert model.kwargs["conf"] == 0.1 and model.kwargs["agnostic_nms"] is True
+    assert sorted(model.kwargs["classes"]) == [39, 40, 41]
+
+
+def test_track_reports_only_after_min_hits():
+    rows = [(100, 100, 200, 200, 41, 0.8, 5)]
+    det = Detector(FakeTrackYOLO([rows] * 3))
+    assert det.track(FRAME) == [] and det.track(FRAME) == []
+    assert det.track(FRAME) == [Box(100, 100, 200, 200, "cup", 0.8, 5)]
+
+
+def test_track_smooths_boxes_and_votes_class():
+    frames = [[(100, 100, 200, 200, 41, 0.8, 5)]] * 3 + [[(120, 100, 220, 200, 40, 0.4, 5)]]
+    det = Detector(FakeTrackYOLO(frames))
+    for _ in range(3):
+        det.track(FRAME)
+    (b,) = det.track(FRAME)
+    assert (b.x1, b.x2) == (110, 210)        # halfway: one jumpy frame moves it half as far
+    assert b.cls == "cup" and b.id == 5      # one "wine glass" frame doesn't flip the class
+
+
+def test_track_with_no_tracks():
+    assert Detector(FakeTrackYOLO([[]])).track(FRAME) == []

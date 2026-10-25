@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  MOCK_USER, PRESETS, fixtureAlcohol, fixtureDrinkHistory, fixtureHr, fixtureIdentify,
+  MOCK_USER, PRESETS, fixtureAlcohol, fixtureDrinkHistory, fixtureHr, fixtureIdentify, fixtureMachineLog,
   fixtureProfile, fixtureSleep, fixtureState, fixtureWhatIf, isoLocal,
 } from "./fixtures";
 import type {
-  Alcohol, CurvePoint, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, MachineStatus, Preset, ProfileResponse,
+  Alcohol, CurvePoint, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, MachineLog, MachineStatus, Preset, ProfileResponse,
   SleepNight, Source, StateResponse, User, WhatIfResponse,
 } from "./types";
 
@@ -171,6 +171,12 @@ export function getUser(id = 1): Promise<User> {
 export function getMachine(): Promise<MachineStatus> {
   if (MOCK) return mock(() => ({ online: true, last_seen: new Date().toISOString(), seconds_ago: 1 }));
   return http("/machine");
+}
+
+/** Desk machine activity (detections, Gemini results) newer than seq `after`. */
+export function getMachineLog(userId: number, after = 0): Promise<MachineLog> {
+  if (MOCK) return mock(() => fixtureMachineLog(after));
+  return http(`/machine/log${qs({ user_id: userId, after })}`);
 }
 
 /** Returns an object URL for the morning-brief audio. */
@@ -364,6 +370,26 @@ export function revalidate(prefix: string): void {
   for (const [key, subs] of refetchers) {
     if (key.startsWith(prefix)) subs.forEach((fn) => fn());
   }
+}
+
+/**
+ * Keeps a `useApi` result current: refetches every `ms` while the tab is visible, and
+ * at once when the tab comes back, so changes made elsewhere (the desk machine,
+ * another device) show up without a reload. Cached data stays on screen meanwhile.
+ */
+export function useLive(refetch: () => unknown, ms = 3000, enabled = true): void {
+  useEffect(() => {
+    if (!enabled) return;
+    const tick = () => { if (document.visibilityState === "visible") refetch(); };
+    const id = setInterval(tick, ms);
+    document.addEventListener("visibilitychange", tick);
+    window.addEventListener("focus", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+      window.removeEventListener("focus", tick);
+    };
+  }, [refetch, ms, enabled]);
 }
 
 /**

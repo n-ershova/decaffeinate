@@ -37,3 +37,37 @@ def test_invalid_identification_requests(client):
     assert client.post("/drinks/identify",data={"text":"tea"},files={"image":("x.jpg",b"x","image/jpeg")}).status_code == 422
     assert client.post("/drinks/identify",files={"image":("x.jpg",b"x","image/jpeg")}).status_code == 422
     assert client.post("/drinks/identify",data={"text":"tea","user_id":999}).status_code == 404
+
+def _jetson_scan(client):
+    return client.post("/drinks/identify", files={"image": ("can.jpg", _jpeg(), "image/jpeg")},
+                       data={"source": "jetson"}).json()
+
+def _jpeg():
+    raw = BytesIO()
+    Image.new("RGB", (64, 64)).save(raw, format="JPEG")
+    return raw.getvalue()
+
+def test_machine_does_not_count_a_returning_drink_twice(client, api_repo, now, monkeypatch):
+    from datetime import timedelta
+    from app.deps import get_now
+    from app.main import app
+    monkeypatch.setattr(identify, "identify_image", lambda image: GeminiResult(drink="red_bull", confidence=.95))
+    first = _jetson_scan(client)
+    assert first["logged"]["source"] == "jetson" and "repeat" not in first
+    # The same can comes back into view five minutes later: not logged again.
+    app.dependency_overrides[get_now] = lambda: now + timedelta(minutes=5)
+    again = _jetson_scan(client)
+    assert again["logged"] is None and again["repeat"]["time"] == first["logged"]["time"]
+    # After the window it's a new drink.
+    app.dependency_overrides[get_now] = lambda: now + timedelta(minutes=11)
+    assert _jetson_scan(client)["logged"] is not None
+    assert len(client.get("/drinks").json()) == 2
+
+def test_repeat_check_is_per_drink_and_machine_only(client, monkeypatch):
+    drinks = iter(["red_bull", "cola"])
+    monkeypatch.setattr(identify, "identify_image", lambda image: GeminiResult(drink=next(drinks), confidence=.95))
+    _jetson_scan(client)
+    assert _jetson_scan(client)["logged"]["drink_key"] == "cola"     # a different drink still logs
+    # Typing it on the website is deliberate, so it always logs.
+    monkeypatch.setattr(identify, "identify_text", lambda text: GeminiResult(drink="red_bull", confidence=.95))
+    assert client.post("/drinks/identify", data={"text": "Red Bull", "source": "text"}).json()["logged"]

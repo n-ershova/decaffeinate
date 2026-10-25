@@ -1,5 +1,5 @@
 import SelectBox from "@/components/SelectBox";
-import type { Drink } from "@/lib/types";
+import type { Drink, Source } from "@/lib/types";
 
 interface Props {
   drinks: Drink[];
@@ -10,6 +10,10 @@ interface Props {
 
 const label = (key: string) => key.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 const fmtDay = (d: Date) => d.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" });
+// Where a drink was logged: the desk machine (Jetson) or by hand / photo / text on the website.
+const ORIGIN: Record<Source, string> = {
+  jetson: "Machine", preset: "Website", photo: "Website", text: "Website", simulated: "Demo",
+};
 const fmtTime = (d: Date) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 
 export default function DrinkHistory({ drinks, selected, onToggle }: Props) {
@@ -43,7 +47,10 @@ export default function DrinkHistory({ drinks, selected, onToggle }: Props) {
               }}>
                 {selected && <SelectBox checked={selected.has(d.time)} label={`${label(d.drink_key)} at ${fmtTime(new Date(d.time))}`} />}
                 <span className="num" style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{fmtTime(new Date(d.time))}</span>
-                <span>{label(d.drink_key)}</span>
+                <span>
+                  {label(d.drink_key)}
+                  <span style={{ color: "var(--muted)", fontSize: "0.75rem" }}> · {ORIGIN[d.source] ?? "Website"}</span>
+                </span>
                 <span className="num" style={{ color: "var(--muted)", fontSize: "0.75rem" }}>{Math.round(d.mg)} mg</span>
               </li>
             ))}

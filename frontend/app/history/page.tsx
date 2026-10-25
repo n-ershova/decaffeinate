@@ -3,7 +3,7 @@
 import { useState } from "react";
 import CheckinHistory from "@/components/CheckinHistory";
 import DrinkHistory from "@/components/DrinkHistory";
-import { deleteDrinks, deleteSleep, getDrinks, getSleep, useApi, useUserId } from "@/lib/api";
+import { deleteDrinks, deleteSleep, getDrinks, getSleep, useApi, useLive, useUserId } from "@/lib/api";
 
 const VIEWS = [
   { key: "drinks", label: "Intake" },
@@ -18,6 +18,9 @@ export default function History() {
   const drinks = useApi(userId ? `/drinks?user_id=${userId}` : null, () => getDrinks(userId!));
   const sleep = useApi(userId ? `/sleep?user_id=${userId}` : null, () => getSleep(userId!));
   const current = view === "drinks" ? drinks : sleep;
+  // Drinks the desk machine (or another device) logs appear while the page is open.
+  // Paused while deleting, so rows being removed don't flash back.
+  useLive(current.mutate, 3000, state !== "deleting");
 
   const stopEditing = () => { setSelected(null); setState("idle"); };
 

@@ -1,5 +1,5 @@
 import type {
-  Alcohol, Drink, HrCheck, IdentifyResponse, Preset, ProfileResponse, SleepNight,
+  Alcohol, Drink, HrCheck, IdentifyResponse, MachineLog, Preset, ProfileResponse, SleepNight,
   StateResponse, User, WhatIfResponse, CurvePoint,
 } from "./types";
 
@@ -224,3 +224,18 @@ export const fixtureAlcohol = (units: number, now = new Date()): Alcohol => ({ t
 
 export const fixtureHr = (hr_bpm: number, br_bpm: number, drink_time: string | null): HrCheck =>
   ({ time: isoLocal(new Date()), user_id: 1, drink_time, hr_bpm, br_bpm });
+
+/** Mock desk-machine activity: one held-up drink, returned on the first read only. */
+export function fixtureMachineLog(after = 0, now = new Date()): MachineLog {
+  const lines: [number, MachineLog["entries"][number]["kind"], string][] = [
+    [40, "info", "detector ready: yolo26n.engine + ByteTrack; hold a drink up to the camera"],
+    [12, "track", "#3 cup appeared (0.81)"],
+    [11, "trigger", "#3 cup held up, asking Gemini..."],
+    [9, "logged", "logged Starbucks grande oat latte: 150 mg"],
+    [2, "lost", "#3 cup left"],
+  ];
+  const entries = lines.map(([s, kind, message], i) => ({
+    seq: i + 1, time: new Date(now.getTime() - s * 1000).toISOString(), kind, message,
+  }));
+  return { entries: entries.filter((e) => e.seq > after), last: entries.length };
+}

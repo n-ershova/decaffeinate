@@ -156,3 +156,18 @@ export interface MachineStatus {
   last_seen: string | null;
   seconds_ago: number | null;
 }
+
+export type MachineLogKind = "info" | "track" | "lost" | "trigger" | "logged" | "unsure" | "error";
+
+export interface MachineLogEntry {
+  seq: number;
+  time: string;
+  kind: MachineLogKind;
+  message: string;
+}
+
+export interface MachineLog {
+  entries: MachineLogEntry[];
+  /** Newest stored seq; lower than the `after` you sent means the log was reset. */
+  last: number;
+}

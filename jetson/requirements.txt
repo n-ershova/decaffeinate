@@ -1,0 +1,7 @@
+# Desk machine: python3 -m pip install -r jetson/requirements.txt
+# On the Jetson, install NVIDIA's JetPack build of torch first (not the PyPI one);
+# JetPack also ships OpenCV, so opencv-python can be skipped there.
+ultralytics>=8.4.95
+lap>=0.5.12            # ByteTrack's matcher; Ultralytics would otherwise install it on first run
+opencv-python>=4.8
+numpy

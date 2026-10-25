@@ -1,0 +1,9 @@
+# ByteTrack settings for Detector.track(), tuned for one webcam on a desk at 15-30 FPS.
+# Ultralytics' defaults are in ultralytics/cfg/trackers/bytetrack.yaml.
+tracker_type: bytetrack
+track_high_thresh: 0.35 # first-stage matches; same as HALFLIFE_YOLO_CONF's default
+track_low_thresh: 0.1 # second stage keeps a track alive through low-score frames (detector.LOW_CONF)
+new_track_thresh: 0.45 # a new drink needs a confident box, so stray boxes don't start tracks
+track_buffer: 45 # frames a lost track is kept (about 2-3 s), so a hand passing in front keeps the id
+match_thresh: 0.8
+fuse_score: True

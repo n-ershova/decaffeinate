@@ -1,4 +1,5 @@
 import MachineStatus from "@/components/MachineStatus";
+import MachineTerminal from "@/components/MachineTerminal";
 
 const LIGHTS = [
   { color: "var(--green)", label: "Green", body: "You can still have caffeine." },
@@ -8,7 +9,7 @@ const LIGHTS = [
 
 const STEPS = [
   { title: "Set it on your desk", body: "Plug it in where you can see the light." },
-  { title: "Hold up your drink", body: "Keep it in the middle of the camera, close and still for a second." },
+  { title: "Hold up your drink", body: "Hold it close to the camera and keep it still for a second." },
   { title: "That's it", body: "It's logged for you. If it isn't sure, the app asks you to confirm." },
   { title: "Wait 10 seconds", body: "Before scanning the next drink, so nothing is logged twice." },
 ];
@@ -108,6 +109,8 @@ export default function Machine() {
           Everything is processed on the machine. Only a crop of the drink is sent, never the full picture or your face.
         </p>
       </section>
+
+      <MachineTerminal />
     </div>
   );
 }

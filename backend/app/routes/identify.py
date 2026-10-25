@@ -1,17 +1,21 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Annotated, Literal
 import warnings
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from PIL import Image, ImageOps, UnidentifiedImageError
 from app.db.repo import Repo
-from app.deps import get_now, get_repo, require_user
+from app.deps import get_now, get_repo, require_user, setting
 from app.drinks.gemini import identify_image, identify_text
 from app.drinks.lookup import estimate
 from app.types import Drink
 
 router = APIRouter()
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
+
+def repeat_window() -> timedelta:
+    # Someone sipping a coffee keeps bringing the same cup back to the desk machine.
+    return timedelta(minutes=float(setting("JETSON_REPEAT_MINUTES", "10")))
 
 def resize_image(raw: bytes) -> bytes:
     try:
@@ -50,6 +54,14 @@ def identify(image: Annotated[UploadFile | None, File()] = None,
         source = "text"
     prediction = estimate(result)
     logged = None
+    if source == "jetson" and prediction.auto_accept:
+        # The machine can't tell a returning cup from a new one; the same drink logged
+        # recently (from anywhere) is taken to be this one, so it isn't counted twice.
+        recent = [d for d in repo.list_drinks(user_id, now - repeat_window(), now)
+                  if d.drink_key == prediction.drink_key]
+        if recent:
+            return {"gemini": result, "estimate": prediction, "logged": None,
+                    "repeat": max(recent, key=lambda d: d.time)}
     if prediction.auto_accept:
         logged = repo.add_drink(Drink(time=now, user_id=user_id, drink_key=prediction.drink_key,
                                       mg=prediction.mg, mg_low=prediction.mg_low,

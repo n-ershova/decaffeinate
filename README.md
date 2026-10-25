@@ -173,6 +173,19 @@ curl.exe "http://localhost:8000/brief?user_id=1" --fail --output morning.mp3
 
 API reference: https://elevenlabs.io/docs/api-reference/text-to-speech/convert
 
+## Desk machine (Jetson)
+
+The machine finds a drink with YOLOE nano (cup, bottle, wine glass and can) and ByteTrack, waits until one is held close and still for a second, and sends only the crop to `POST /drinks/identify` with `source=jetson`. Gemini and the lookup table identify it and log it when confident; ElevenLabs then says the drink and its caffeine on the machine's speaker. The same drink scanned again within `JETSON_REPEAT_MINUTES` (default 10) is not counted twice. Everything it sees and sends appears in the live log at the bottom of the Machine page, and History marks each drink as Machine or Website.
+
+```sh
+python3 -m pip install -r jetson/requirements.txt
+HALFLIFE_EMAIL=you@example.com HALFLIFE_PASSWORD='...' python3 jetson/scan_station.py --preview
+```
+
+The email and password are an ordinary account created on the website; its drinks are logged there. Options: `--camera N` picks another webcam (on a Mac with an iPhone nearby, the laptop camera is often 1), `--preview` shows the camera with boxes and hold progress, `--quiet` turns off announcements, `--api URL` (or `HALFLIFE_API`) points at the backend. The first run downloads the model and a 250 MB text encoder into `jetson/models/`.
+
+On the Jetson: build the TensorRT engine once with `jetson/export_engine.sh` (check `python3 jetson/detector.py --headless` reaches 15 FPS), install an MP3 player with `sudo apt install mpg123`, start the backend with `--host 0.0.0.0` and set `HALFLIFE_API=http://<backend-ip>:8000`. Machine tests: `python3 -m pytest jetson/tests`.
+
 ## Tests
 
 ```powershell

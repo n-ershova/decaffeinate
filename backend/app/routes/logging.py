@@ -39,6 +39,16 @@ class SleepRequest(BaseModel):
     latency_min: float = Field(ge=0, le=1440)
     rested_1to5: int | None = Field(default=None, ge=1, le=5)
 
+class DeleteDrinksRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    user_id: int = Field(default=1, ge=1)
+    times: list[AwareDatetime] = Field(max_length=1000)
+
+class DeleteSleepRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    user_id: int = Field(default=1, ge=1)
+    nights: list[date] = Field(max_length=1000)
+
 @router.post("/drinks", response_model=Drink)
 def add_drink(body: DrinkRequest, repo: Repo = Depends(get_repo), now: datetime = Depends(get_now)):
     require_user(repo, body.user_id)
@@ -50,6 +60,11 @@ def drinks(user_id: Annotated[int, Query(ge=1)] = 1, days: Annotated[int, Query(
     require_user(repo, user_id)
     return repo.list_drinks(user_id, now - timedelta(days=days), now + timedelta(microseconds=1))
 
+@router.delete("/drinks")
+def delete_drinks(body: DeleteDrinksRequest, repo: Repo = Depends(get_repo)):
+    require_user(repo, body.user_id)
+    return {"deleted": repo.delete_drinks(body.user_id, body.times)}
+
 @router.post("/alcohol", response_model=Alcohol)
 def add_alcohol(body: AlcoholRequest, repo: Repo = Depends(get_repo), now: datetime = Depends(get_now)):
     require_user(repo, body.user_id)
@@ -59,6 +74,16 @@ def add_alcohol(body: AlcoholRequest, repo: Repo = Depends(get_repo), now: datet
 def sleep(body: SleepRequest, repo: Repo = Depends(get_repo)):
     require_user(repo, body.user_id)
     return repo.upsert_sleep(SleepNight(**body.model_dump()))
+
+@router.delete("/sleep")
+def delete_sleep(body: DeleteSleepRequest, repo: Repo = Depends(get_repo)):
+    require_user(repo, body.user_id)
+    return {"deleted": repo.delete_sleep(body.user_id, body.nights)}
+
+@router.get("/sleep", response_model=list[SleepNight])
+def sleep_nights(user_id: Annotated[int, Query(ge=1)] = 1, repo: Repo = Depends(get_repo)):
+    require_user(repo, user_id)
+    return sorted(repo.list_sleep(user_id), key=lambda s: s.night, reverse=True)
 
 @router.get("/sleep/pending")
 def pending(user_id: Annotated[int, Query(ge=1)] = 1,
@@ -77,7 +102,7 @@ def presets():
         if row["preset"]:
             shots = 2 if row["per"] == "shot" and row["key"] != "espresso_shot" else 1
             bonus = 10 if row["key"] == "mocha" else 0
-            result.append(Preset(key=row["key"], label=row["label"], emoji=row["emoji"],
+            result.append(Preset(key=row["key"], label=row["label"],
                                  **{out: row[key] * shots + bonus for out, key in
                                     (("mg", "mg"), ("mg_low", "low"), ("mg_high", "high"))}))
     return result

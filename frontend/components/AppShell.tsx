@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MorningCheckin from "@/components/MorningCheckin";
 import Toaster from "@/components/Toaster";
-import { getSleepPending, useApi, useUserId } from "@/lib/api";
+import { UNKNOWN_USER_EVENT, getSleepPending, setStoredUserId, useApi, useUserId } from "@/lib/api";
 
 const TABS = [
   { href: "/", label: "Today" },
@@ -35,6 +35,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const bare = path.startsWith("/onboarding") || path.startsWith("/dev");
   const userId = useUserId();
   const pending = useApi(userId && !bare ? `/sleep/pending?user_id=${userId}` : null, () => getSleepPending(userId!));
+  // The in-memory backend forgets users when it restarts; start onboarding again
+  // rather than leaving every screen failing on a stale stored id.
+  useEffect(() => {
+    const reset = () => { setStoredUserId(null); router.replace("/onboarding"); };
+    window.addEventListener(UNKNOWN_USER_EVENT, reset);
+    return () => window.removeEventListener(UNKNOWN_USER_EVENT, reset);
+  }, [router]);
   const [dismissed, setDismissed] = useState<string | null>(null);
   const night = pending.data?.night;
   const showCheckin = !!pending.data?.needs_checkin && night !== dismissed && !skipped(night!);

@@ -137,3 +137,21 @@ def test_materialized_history_reset(repo):
     assert repo.daily_total_mg(2, at.date()) == 80
     repo.reset_user(2)
     assert repo.daily_total_mg(2, at.date()) == 0
+
+
+def test_delete_drinks_and_sleep(repo):
+    repo.create_user(user())
+    repo.create_user(user(3))
+    at = datetime(2026, 10, 20, 9, tzinfo=timezone.utc)
+    for id in (2, 3):
+        repo.add_drink(drink(id, at))
+        repo.add_drink(drink(id, at + timedelta(hours=1)))
+        repo.upsert_sleep(SleepNight(night=at.date(), user_id=id, bedtime=at, latency_min=15))
+    assert repo.delete_drinks(2, [at, at - timedelta(days=1)]) == 1
+    assert repo.delete_drinks(2, []) == 0
+    window = (at - timedelta(days=1), at + timedelta(days=1))
+    assert [d.time for d in repo.list_drinks(2, *window)] == [at + timedelta(hours=1)]
+    assert len(repo.list_drinks(3, *window)) == 2
+    assert repo.daily_total_mg(2, at.date()) == 80
+    assert repo.delete_sleep(2, [at.date(), date(2026, 1, 1)]) == 1
+    assert repo.list_sleep(2) == [] and len(repo.list_sleep(3)) == 1

@@ -149,8 +149,22 @@ code, pre, .num { font-family: var(--mono); font-feature-settings: "tnum"; }
 .tile {
   font: inherit; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--hairline);
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
-  padding: 14px 0; text-align: left; cursor: pointer; transition: color 0.15s, padding 0.15s;
+  padding: 12px 0; text-align: left; cursor: pointer; transition: color 0.15s, padding 0.15s;
+  font-size: 0.875rem;
 }
+.drawer-backdrop {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center;
+  background: rgb(20 20 19 / 0.35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: drawer-fade 0.2s ease-out both;
+}
+.drawer {
+  width: 100%; max-width: 440px; background: var(--bg); border: 1px solid var(--border); border-bottom: 0;
+  border-radius: 4px 4px 0 0; padding: 32px 28px calc(28px + env(safe-area-inset-bottom));
+  animation: drawer-up 0.25s ease-out both;
+}
+@keyframes drawer-fade { from { opacity: 0; } }
+@keyframes drawer-up { from { transform: translateY(100%); } }
+
 .tile:hover { padding-left: 4px; }
 .tile:active { color: var(--graphite); }
 
@@ -171,3 +185,80 @@ input[type="range"] { accent-color: var(--ink); }
 /* Plain-language explanation under a figure */
 .caption { margin: 8px 0 0; font-size: 0.82rem; line-height: 1.5; color: var(--graphite); max-width: 46ch; }
 .caption strong { font-weight: 400; color: var(--ink); }
+
+/* Camera viewfinder */
+.viewfinder {
+  position: relative; margin-top: 20px; width: 100%; max-width: 320px; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 20px;
+  background: var(--wash); animation: viewfinder-in 0.35s ease both;
+}
+.viewfinder video { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.4s ease; }
+.viewfinder.ready video { opacity: 1; }
+.viewfinder-status { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font-size: 0.82rem; color: var(--graphite); }
+.viewfinder-corners { position: absolute; inset: 16px; pointer-events: none; }
+.viewfinder-corners span { position: absolute; width: 16px; height: 16px; border: 0 solid rgba(255, 255, 255, 0.8); }
+.viewfinder-corners span:nth-child(1) { border-top-left-radius: 8px; top: 0; left: 0; border-top-width: 1px; border-left-width: 1px; }
+.viewfinder-corners span:nth-child(2) { border-top-right-radius: 8px; top: 0; right: 0; border-top-width: 1px; border-right-width: 1px; }
+.viewfinder-corners span:nth-child(3) { border-bottom-left-radius: 8px; bottom: 0; left: 0; border-bottom-width: 1px; border-left-width: 1px; }
+.viewfinder-corners span:nth-child(4) { border-bottom-right-radius: 8px; bottom: 0; right: 0; border-bottom-width: 1px; border-right-width: 1px; }
+.viewfinder-close {
+  position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border: 0; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; color: #fff;
+  background: rgba(0, 0, 0, 0.28); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.shutter {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%);
+  width: 52px; height: 52px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1.5px solid rgba(255, 255, 255, 0.9); background: transparent;
+}
+.shutter::after {
+  content: ""; position: absolute; inset: 4px; border-radius: 50%; background: #fff;
+  transition: transform 0.15s ease;
+}
+.shutter:active::after { transform: scale(0.88); }
+.shutter:disabled { opacity: 0.35; cursor: default; }
+.viewfinder-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; animation: viewfinder-flash 0.25s ease-out both; }
+@keyframes viewfinder-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes viewfinder-flash { from { opacity: 0.7; } to { opacity: 0; } }
+
+/* Camera button */
+.photo-action {
+  display: inline-flex; align-items: center; gap: 14px; padding: 0; border: 0; background: none;
+  font: inherit; font-size: 0.95rem; color: var(--ink); cursor: pointer;
+}
+.camera-btn {
+  width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--hairline); transition: border-color 0.15s, background 0.15s;
+}
+.photo-action:hover .camera-btn { border-color: var(--ink); }
+.photo-action:active .camera-btn { background: var(--wash); }
+.photo-action:disabled { cursor: default; }
+.photo-action:disabled:not(.busy) { opacity: 0.3; }
+.photo-action.busy { color: var(--graphite); }
+.photo-action.busy svg { animation: camera-pulse 1.2s ease-in-out infinite; }
+@keyframes camera-pulse { 50% { opacity: 0.3; } }
+input[type="number"].field { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"].field::-webkit-inner-spin-button,
+input[type="number"].field::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Capture: "or" divider, inline fields with an arrow submit */
+.or-divider { display: flex; align-items: center; gap: 12px; margin: 28px 0 12px; font-size: 0.75rem; color: var(--graphite); }
+.or-divider::before, .or-divider::after { content: ""; flex: 1; border-top: 1px solid var(--hairline); }
+.or-divider::before { flex: 0 0 24px; }
+.inline-field {
+  display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--hairline); transition: border-color 0.15s;
+}
+.inline-field:focus-within { border-bottom-color: var(--ink); }
+.inline-field input {
+  flex: 1; min-width: 0; font: inherit; color: var(--ink); background: transparent; border: 0; outline: none; padding: 10px 0;
+}
+.inline-field input::placeholder { color: var(--graphite); }
+.inline-field input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.inline-field input::-webkit-inner-spin-button, .inline-field input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.inline-field .unit { font-size: 0.8rem; color: var(--graphite); }
+.arrow-submit {
+  flex: none; width: 28px; height: 28px; padding: 0; border-radius: 50%; display: grid; place-items: center;
+  border: 0; background: var(--ink); color: var(--paper); cursor: pointer; transition: opacity 0.15s, transform 0.15s;
+}
+.arrow-submit.idle { opacity: 0; transform: scale(0.8); pointer-events: none; }
+.arrow-submit:disabled:not(.idle) { opacity: 0.3; cursor: default; }
+.manual-row { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 0.85rem; color: var(--graphite); }

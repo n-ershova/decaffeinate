@@ -1,0 +1,482 @@
+[
+  {
+    "key": "starbucks_pike_place",
+    "brand": "Starbucks",
+    "label": "Starbucks Pike Place Roast",
+    "drink": "filter_coffee",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 235
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 310
+      },
+      "large": {
+        "ml": 591,
+        "mg": 410
+      }
+    }
+  },
+  {
+    "key": "starbucks_blonde_roast",
+    "brand": "Starbucks",
+    "label": "Starbucks Blonde Roast",
+    "drink": "filter_coffee",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 270
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 360
+      },
+      "large": {
+        "ml": 591,
+        "mg": 475
+      }
+    }
+  },
+  {
+    "key": "starbucks_caffe_latte",
+    "brand": "Starbucks",
+    "label": "Starbucks Caffè Latte",
+    "drink": "milk_coffee",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 75
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 150
+      },
+      "large": {
+        "ml": 591,
+        "mg": 150
+      }
+    }
+  },
+  {
+    "key": "starbucks_cappuccino",
+    "brand": "Starbucks",
+    "label": "Starbucks Cappuccino",
+    "drink": "milk_coffee",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 75
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 150
+      },
+      "large": {
+        "ml": 591,
+        "mg": 150
+      }
+    }
+  },
+  {
+    "key": "starbucks_flat_white",
+    "brand": "Starbucks",
+    "label": "Starbucks Flat White",
+    "drink": "milk_coffee",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 130
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 195
+      },
+      "large": {
+        "ml": 591,
+        "mg": 195
+      }
+    }
+  },
+  {
+    "key": "starbucks_caramel_macchiato",
+    "brand": "Starbucks",
+    "label": "Starbucks Caramel Macchiato",
+    "drink": "milk_coffee",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 75
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 150
+      },
+      "large": {
+        "ml": 591,
+        "mg": 150
+      }
+    }
+  },
+  {
+    "key": "starbucks_americano",
+    "brand": "Starbucks",
+    "label": "Starbucks Caffè Americano",
+    "drink": "americano",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 150
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 225
+      },
+      "large": {
+        "ml": 591,
+        "mg": 300
+      }
+    }
+  },
+  {
+    "key": "starbucks_mocha",
+    "brand": "Starbucks",
+    "label": "Starbucks Caffè Mocha",
+    "drink": "mocha",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 95
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 175
+      },
+      "large": {
+        "ml": 591,
+        "mg": 185
+      }
+    }
+  },
+  {
+    "key": "starbucks_cold_brew",
+    "brand": "Starbucks",
+    "label": "Starbucks Cold Brew",
+    "drink": "cold_brew",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 155
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 205
+      },
+      "large": {
+        "ml": 710,
+        "mg": 310
+      }
+    }
+  },
+  {
+    "key": "starbucks_chai_latte",
+    "brand": "Starbucks",
+    "label": "Starbucks Chai Tea Latte",
+    "drink": "chai_latte",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 70
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 95
+      },
+      "large": {
+        "ml": 591,
+        "mg": 120
+      }
+    }
+  },
+  {
+    "key": "starbucks_matcha_latte",
+    "brand": "Starbucks",
+    "label": "Starbucks Matcha Tea Latte",
+    "drink": "matcha",
+    "exact": false,
+    "source": "Starbucks US published nutrition (tall/grande/venti, hot)",
+    "sizes": {
+      "small": {
+        "ml": 354,
+        "mg": 55
+      },
+      "regular": {
+        "ml": 473,
+        "mg": 80
+      },
+      "large": {
+        "ml": 591,
+        "mg": 110
+      }
+    }
+  },
+  {
+    "key": "lipton_black_tea_bag",
+    "brand": "Lipton",
+    "label": "Lipton black tea (bag)",
+    "drink": "black_tea",
+    "exact": false,
+    "source": "Lipton published figure per 8 fl oz cup (verify)",
+    "sizes": {
+      "regular": {
+        "ml": 240,
+        "mg": 55
+      }
+    }
+  },
+  {
+    "key": "red_bull_250",
+    "brand": "Red Bull",
+    "label": "Red Bull 250 ml",
+    "drink": "red_bull",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 250,
+        "mg": 80
+      }
+    }
+  },
+  {
+    "key": "red_bull_sugarfree_250",
+    "brand": "Red Bull",
+    "label": "Red Bull Sugarfree 250 ml",
+    "drink": "red_bull",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 250,
+        "mg": 80
+      }
+    }
+  },
+  {
+    "key": "red_bull_355",
+    "brand": "Red Bull",
+    "label": "Red Bull 355 ml",
+    "drink": "red_bull",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 355,
+        "mg": 114
+      }
+    }
+  },
+  {
+    "key": "red_bull_473",
+    "brand": "Red Bull",
+    "label": "Red Bull 473 ml",
+    "drink": "red_bull",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 473,
+        "mg": 151
+      }
+    }
+  },
+  {
+    "key": "monster_energy_500",
+    "brand": "Monster",
+    "label": "Monster Energy",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 500,
+        "mg": 160
+      }
+    }
+  },
+  {
+    "key": "monster_ultra_500",
+    "brand": "Monster",
+    "label": "Monster Ultra",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 500,
+        "mg": 150
+      }
+    }
+  },
+  {
+    "key": "rockstar_500",
+    "brand": "Rockstar",
+    "label": "Rockstar Original",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 500,
+        "mg": 160
+      }
+    }
+  },
+  {
+    "key": "celsius_355",
+    "brand": "Celsius",
+    "label": "Celsius",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 355,
+        "mg": 200
+      }
+    }
+  },
+  {
+    "key": "bang_473",
+    "brand": "Bang",
+    "label": "Bang Energy",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 473,
+        "mg": 300
+      }
+    }
+  },
+  {
+    "key": "reign_473",
+    "brand": "Reign",
+    "label": "Reign Total Body Fuel",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 473,
+        "mg": 300
+      }
+    }
+  },
+  {
+    "key": "c4_energy_473",
+    "brand": "C4",
+    "label": "C4 Energy",
+    "drink": "energy_drink_500",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 473,
+        "mg": 200
+      }
+    }
+  },
+  {
+    "key": "mountain_dew_355",
+    "brand": "Mountain Dew",
+    "label": "Mountain Dew 355 ml",
+    "drink": "cola",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 355,
+        "mg": 54
+      }
+    }
+  },
+  {
+    "key": "dr_pepper_355",
+    "brand": "Dr Pepper",
+    "label": "Dr Pepper 355 ml",
+    "drink": "cola",
+    "exact": true,
+    "source": "Manufacturer label",
+    "sizes": {
+      "regular": {
+        "ml": 355,
+        "mg": 41
+      }
+    }
+  },
+  {
+    "key": "pro_plus",
+    "brand": "Pro Plus",
+    "label": "Pro Plus tablet",
+    "drink": "caffeine_pill",
+    "exact": true,
+    "source": "Manufacturer label, per tablet (verify)",
+    "sizes": {
+      "regular": {
+        "ml": null,
+        "mg": 50
+      }
+    }
+  },
+  {
+    "key": "nodoz",
+    "brand": "NoDoz",
+    "label": "NoDoz tablet",
+    "drink": "caffeine_pill",
+    "exact": true,
+    "source": "Manufacturer label, per tablet (verify)",
+    "sizes": {
+      "regular": {
+        "ml": null,
+        "mg": 200
+      }
+    }
+  },
+  {
+    "key": "vivarin",
+    "brand": "Vivarin",
+    "label": "Vivarin tablet",
+    "drink": "caffeine_pill",
+    "exact": true,
+    "source": "Manufacturer label, per tablet (verify)",
+    "sizes": {
+      "regular": {
+        "ml": null,
+        "mg": 200
+      }
+    }
+  }
+]

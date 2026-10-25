@@ -138,19 +138,38 @@ class TigerRepo:
             for table in ("drinks", "alcohol", "sleep_nights", "hr_checks"):
                 conn.execute(sql.SQL("DELETE FROM {} WHERE user_id = %s").format(
                     sql.Identifier(table)), (user_id,))
+        self._refresh_daily(bounds["lo"], bounds["hi"])
+
+    def delete_drinks(self, user_id: int, times: list[datetime]) -> int:
+        if not times:
+            return 0
+        with self.pool.connection() as conn:
+            deleted = conn.execute("DELETE FROM drinks WHERE user_id = %s AND time = ANY(%s)",
+                                   (user_id, list(times))).rowcount
+        if deleted:
+            self._refresh_daily(min(times), max(times))
+        return deleted
+
+    def delete_sleep(self, user_id: int, nights: list[date]) -> int:
+        with self.pool.connection() as conn:
+            return conn.execute("DELETE FROM sleep_nights WHERE user_id = %s AND night = ANY(%s)",
+                                (user_id, list(nights))).rowcount
+
+    def _refresh_daily(self, lo: datetime | None, hi: datetime | None) -> None:
         # Real-time aggregates do not automatically re-read materialized history.
         # Refresh deleted historical buckets as well as clearing raw rows.
-        if bounds["lo"] is not None:
-            start = bounds["lo"].astimezone(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-            end = bounds["hi"].astimezone(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
-            # Leave today's bucket unmaterialized, so new drinks stay visible
-            # immediately through real-time aggregation after the reset.
-            end = min(end, datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0))
-            if start < end:
-                with self.pool.connection() as conn:
-                    conn.autocommit = True
-                    try:
-                        conn.execute("CALL refresh_continuous_aggregate('daily_caffeine', %s::timestamptz, "
-                                     "%s::timestamptz)", (start, end))
-                    finally:
-                        conn.autocommit = False
+        if lo is None:
+            return
+        start = lo.astimezone(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        end = hi.astimezone(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        # Leave today's bucket unmaterialized, so new drinks stay visible
+        # immediately through real-time aggregation after the reset.
+        end = min(end, datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0))
+        if start < end:
+            with self.pool.connection() as conn:
+                conn.autocommit = True
+                try:
+                    conn.execute("CALL refresh_continuous_aggregate('daily_caffeine', %s::timestamptz, "
+                                 "%s::timestamptz)", (start, end))
+                finally:
+                    conn.autocommit = False

@@ -45,6 +45,24 @@ export interface HrCheck {
   br_bpm: number;
 }
 
+export interface DrinkAnalysis {
+  verdict: string;
+  description: string;
+  category: "coffee" | "tea" | "energy_drink" | "soft_drink" | "chocolate" | "other_drink" | "food" | "supplement" | "not_a_drink";
+  product_name?: string | null;
+  container?: "paper_cup" | "mug" | "glass" | "can" | "bottle" | "carton" | "pod" | "other" | null;
+  volume_ml?: number | null;
+  volume_source?: "printed" | "estimated" | null;
+  temperature?: "hot" | "iced" | "room" | null;
+  milk?: string | null;
+  additions?: string[];
+  visible_text?: string[];
+  printed_caffeine?: string | null;
+  evidence?: string[];
+  alternatives?: { drink: string; confidence: number }[];
+  image_issues?: string[];
+}
+
 export interface GeminiResult {
   drink: string;
   size: "small" | "regular" | "large" | null;
@@ -53,6 +71,18 @@ export interface GeminiResult {
   decaf: boolean;
   label_mg: number | null;
   confidence: number;
+  product?: string | null;
+  label_mg_per_100ml?: number | null;
+  analysis?: DrinkAnalysis | null;
+}
+
+export type Size = "small" | "regular" | "large";
+
+export interface SizeOption {
+  ml: number | null;
+  mg: number;
+  mg_low: number;
+  mg_high: number;
 }
 
 export interface DrinkEstimate {
@@ -63,6 +93,10 @@ export interface DrinkEstimate {
   mg_high: number;
   needs: ("shots" | "decaf" | "size")[];
   auto_accept: boolean;
+  /** Where mg came from: printed label > branded product > table scaled by volume > table. */
+  basis?: "label" | "product" | "volume" | "table";
+  size?: Size | null;
+  sizes?: Partial<Record<Size, SizeOption>> | null;
 }
 
 export interface Preset {
@@ -71,7 +105,6 @@ export interface Preset {
   mg: number;
   mg_low: number;
   mg_high: number;
-  emoji: string;
 }
 
 export interface CurvePoint {

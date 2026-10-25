@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createUser } from "@/lib/api";
+import { createUser, setStoredUserId } from "@/lib/api";
 import type { User } from "@/lib/types";
 
 interface Props {
@@ -24,7 +24,7 @@ export default function OnboardingFlow({ onDone }: Props) {
     setError(null);
     try {
       const user = await createUser({ name: name.trim() || "You", bedtime, smoker: !!smoker, hormonal_bc });
-      try { localStorage.setItem("user_id", String(user.id)); } catch { /* storage unavailable */ }
+      setStoredUserId(user.id);
       onDone(user);
     } catch {
       setError("Couldn't save. Try again.");

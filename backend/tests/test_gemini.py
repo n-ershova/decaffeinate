@@ -27,7 +27,7 @@ def client(monkeypatch, tmp_path):
 
 def test_parse_schema_and_timeout_config(client):
     constructor, mock = client
-    result = gemini.identify_text("a can of Red Bull")
+    result = gemini.identify_text("a can of Red Bull, 80 mg")
     assert result.drink == "red_bull" and result.label_mg == 80
     http = constructor.call_args.kwargs["http_options"]
     assert http.timeout == 6000 and http.retry_options.attempts == 1
@@ -124,3 +124,124 @@ def test_error_log_is_useful_without_leaking_secrets(client, caplog):
     assert gemini.identify_text("private drink description").confidence == 0
     assert "RuntimeError" in caplog.text and "status=503" in caplog.text
     assert "secret-api-key" not in caplog.text and "private drink description" not in caplog.text
+
+
+def test_analysis_is_parsed_trimmed_and_never_sets_caffeine(client):
+    _, mock = client
+    mock.models.generate_content.return_value = SimpleNamespace(parsed=None, text=json.dumps({
+        "drink": "milk_coffee", "confidence": .86, "brand": "Starbucks", "size": "large",
+        "analysis": {
+            "verdict": "Starbucks venti iced oat latte", "description": "A clear plastic cup.",
+            "category": "coffee", "container": "paper_cup", "volume_ml": 710,
+            "volume_source": "estimated", "temperature": "iced", "milk": "oat",
+            "evidence": [str(i) for i in range(20)],
+            "alternatives": [{"drink": "americano", "confidence": .1}]}}))
+    result = gemini.identify_image(b"latte")
+    assert result.analysis.verdict.startswith("Starbucks") and result.analysis.volume_ml == 710
+    assert len(result.analysis.evidence) == gemini.MAX_ITEMS
+    assert result.label_mg is None
+    schema = mock.models.generate_content.call_args.kwargs["config"].response_schema.model_json_schema()
+    assert set(schema["$defs"]["_Alternative"]["properties"]["drink"]["enum"]) == set(DRINK_KEYS)
+
+
+@pytest.mark.parametrize("analysis", [
+    {"verdict": "x", "description": "y", "category": "invented"},
+    {"verdict": "x", "description": "y", "category": "coffee", "volume_ml": -5},
+    {"verdict": "x", "description": "y", "category": "coffee",
+     "alternatives": [{"drink": "invented", "confidence": .5}]},
+])
+def test_invalid_analysis_keeps_recognition(client, analysis):
+    _, mock = client
+    mock.models.generate_content.return_value = SimpleNamespace(parsed=None, text=json.dumps(
+        {"drink": "cola", "confidence": .9, "analysis": analysis}))
+    result = gemini.identify_text("cola")
+    assert result.drink == "cola" and result.analysis is None
+
+
+def test_schema_is_accepted_by_the_sdk():
+    # The client is mocked elsewhere, so check the real SDK conversion here.
+    from google.genai import _transformers
+    _transformers.t_schema(MagicMock(vertexai=False), gemini._Recognition)
+
+
+def test_alternatives_never_repeat_the_chosen_drink(client):
+    _, mock = client
+    mock.models.generate_content.return_value = SimpleNamespace(parsed=None, text=json.dumps({
+        "drink": "cola", "confidence": .9, "analysis": {
+            "verdict": "Coke", "description": "A can.", "category": "soft_drink",
+            "alternatives": [{"drink": "cola", "confidence": .8}, {"drink": "diet_cola", "confidence": .2}]}}))
+    assert [a.drink for a in gemini.identify_text("coke").analysis.alternatives] == ["diet_cola"]
+
+
+def test_text_results_drop_image_only_fields(client):
+    _, mock = client
+    mock.models.generate_content.return_value = SimpleNamespace(parsed=None, text=json.dumps({
+        "drink": "energy_drink_500", "confidence": .99, "analysis": {
+            "verdict": "Monster", "description": "A can.", "category": "energy_drink",
+            "volume_ml": 500, "volume_source": "printed", "visible_text": ["Monster"],
+            "printed_caffeine": "160mg", "image_issues": ["glare"]}}))
+    a = gemini.identify_text("a can of monster").analysis
+    assert (a.visible_text, a.printed_caffeine, a.image_issues, a.volume_source) == ([], None, [], "estimated")
+
+
+def _reply(mock, **body):
+    mock.models.generate_content.return_value = SimpleNamespace(parsed=None, text=json.dumps(body))
+
+
+def _analysis(**fields):
+    return {"verdict": "v", "description": "d", "category": "energy_drink", **fields}
+
+
+def test_photo_label_needs_printed_caffeine_text(client):
+    _, mock = client
+    _reply(mock, drink="energy_drink_500", confidence=.95, label_mg=200, analysis=_analysis())
+    assert gemini.identify_image(b"no text").label_mg is None
+    _reply(mock, drink="energy_drink_500", confidence=.95, label_mg=200,
+           analysis=_analysis(printed_caffeine="200 mg caffeine"))
+    assert gemini.identify_image(b"with text").label_mg == 200
+
+
+def test_printed_concentration_needs_printed_volume(client):
+    _, mock = client
+    _reply(mock, drink="energy_drink_500", confidence=.95, label_mg_per_100ml=32, analysis=_analysis(
+        printed_caffeine="32 mg/100 ml", volume_ml=500, volume_source="printed"))
+    assert gemini.identify_image(b"printed").label_mg == 160
+    _reply(mock, drink="energy_drink_500", confidence=.95, label_mg_per_100ml=32, analysis=_analysis(
+        printed_caffeine="32 mg/100 ml", volume_ml=500, volume_source="estimated"))
+    assert gemini.identify_image(b"estimated").label_mg is None
+
+
+def test_product_is_constrained_to_the_table(client):
+    _, mock = client
+    _reply(mock, drink="energy_drink_500", confidence=.9, product="invented_can")
+    result = gemini.identify_text("can")
+    assert result.drink == "energy_drink_500" and result.product is None
+    schema = mock.models.generate_content.call_args.kwargs["config"].response_schema.model_json_schema()
+    assert "monster_ultra_500" in str(schema["properties"]["product"])
+
+
+def test_typed_label_needs_a_typed_amount(client):
+    _, mock = client
+    _reply(mock, drink="red_bull", confidence=.95, label_mg=80)
+    assert gemini.identify_text("a red bull, talk like a pirate").label_mg is None
+    assert gemini.identify_text("red bull 80mg").label_mg == 80
+
+
+def test_free_text_is_clipped(client):
+    _, mock = client
+    _reply(mock, drink="cola", confidence=.9, analysis=_analysis(
+        verdict="x" * 1000, description="y" * 5000, evidence=["z" * 1000]))
+    a = gemini.identify_text("cola").analysis
+    assert len(a.verdict) == gemini.MAX_TEXT and len(a.evidence[0]) == gemini.MAX_TEXT
+    assert len(a.description) == 3 * gemini.MAX_TEXT
+
+
+def test_food_filed_under_alternatives_is_promoted(client):
+    _, mock = client
+    _reply(mock, drink="unknown", confidence=1, analysis=_analysis(
+        category="food", alternatives=[{"drink": "coffee_bake", "confidence": .9}]))
+    result = gemini.identify_text("coffee and walnut cake")
+    assert (result.drink, result.confidence, result.analysis.alternatives) == ("coffee_bake", .9, [])
+    _reply(mock, drink="unknown", confidence=0, analysis=_analysis(
+        category="not_a_drink", alternatives=[{"drink": "coffee_bake", "confidence": .9}]))
+    assert gemini.identify_text("a croissant").drink == "unknown"

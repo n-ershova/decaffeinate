@@ -23,3 +23,8 @@ def test_startup_and_missing_models(client):
     assert client.get("/health").json() == {"status":"ok"}
     app.dependency_overrides.pop(get_engine)
     assert client.get("/state").status_code == 503
+
+def test_curve_contract(client):
+    assert client.get("/curve").json() == {"now_mg":142, "h":5, "curve":STATE["curve"]}
+    assert client.get("/curve?user_id=999").status_code == 404
+    assert client.get("/curve?user_id=0").status_code == 422

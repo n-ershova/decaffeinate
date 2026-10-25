@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, timezone
 import pytest
 
 DRINK={"drink_key":"milk_coffee","mg":130,"mg_low":100,"mg_high":200,"source":"preset"}
@@ -27,6 +27,9 @@ def test_alcohol_and_sleep_upsert(client,api_repo,now):
     assert client.post("/sleep",json=body).status_code == 200
     assert client.post("/sleep",json={**body,"latency_min":25}).json()["latency_min"] == 25
     assert len(api_repo.list_sleep(1)) == 1
+    client.post("/sleep",json={**body,"night":"2026-10-22","bedtime":"2026-10-22T23:30:00+01:00"})
+    assert [s["night"] for s in client.get("/sleep").json()] == ["2026-10-23","2026-10-22"]
+    assert client.get("/sleep?user_id=999").status_code == 404
     assert client.post("/sleep",json={**body,"rested_1to5":6}).status_code == 422
     assert client.post("/alcohol",json={"units":-1}).status_code == 422
 
@@ -46,3 +49,20 @@ def test_presets_are_serving_estimates(client):
     coffee=next(p for p in values if p["key"]=="milk_coffee")
     assert coffee["mg"] == 130 and coffee["mg_low"] == 100
     assert next(p for p in values if p["key"]=="mocha")["mg"] == 140
+
+def test_delete_drinks_and_sleep(client,api_repo,now):
+    kept=client.post("/drinks",json={**DRINK,"time":(now-timedelta(hours=2)).isoformat()}).json()
+    gone=client.post("/drinks",json=DRINK).json()
+    # Same instant written with another offset still matches.
+    utc=now.astimezone(timezone.utc).isoformat()
+    assert client.request("DELETE","/drinks",json={"times":[utc]}).json() == {"deleted":1}
+    assert client.get("/drinks").json() == [kept]
+    assert client.request("DELETE","/drinks",json={"times":[gone["time"]]}).json() == {"deleted":0}
+    assert client.request("DELETE","/drinks",json={"user_id":999,"times":[]}).status_code == 404
+    assert client.request("DELETE","/drinks",json={"times":["2026-10-24T12:00:00"]}).status_code == 422
+    body={"bedtime":"2026-10-23T23:30:00+01:00","latency_min":15}
+    for night in ("2026-10-22","2026-10-23"):
+        client.post("/sleep",json={**body,"night":night})
+    assert client.request("DELETE","/sleep",json={"nights":["2026-10-23","2026-10-01"]}).json() == {"deleted":1}
+    assert [s["night"] for s in client.get("/sleep").json()] == ["2026-10-22"]
+    assert client.request("DELETE","/sleep",json={"user_id":999,"nights":[]}).status_code == 404

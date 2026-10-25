@@ -22,6 +22,14 @@ def state(user_id: Annotated[int, Query(ge=1)] = 1,
     except KeyError:
         raise HTTPException(404, "Unknown user") from None
 
+@router.get("/curve")
+def curve(user_id: Annotated[int, Query(ge=1)] = 1,
+          engine: Engine = Depends(get_engine), now: datetime = Depends(get_now)):
+    try:
+        return engine.curve(user_id, now)
+    except KeyError:
+        raise HTTPException(404, "Unknown user") from None
+
 @router.post("/whatif")
 def whatif(body: WhatIfRequest, engine: Engine = Depends(get_engine), now: datetime = Depends(get_now)):
     try:

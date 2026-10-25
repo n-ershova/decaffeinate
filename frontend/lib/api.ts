@@ -6,12 +6,17 @@ import {
   fixtureProfile, fixtureSleep, fixtureState, fixtureWhatIf, isoLocal,
 } from "./fixtures";
 import type {
-  Alcohol, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, Preset, ProfileResponse,
+  Alcohol, CurvePoint, DemoSeedResponse, Drink, HrCheck, IdentifyResponse, Preset, ProfileResponse,
   SleepNight, Source, StateResponse, User, WhatIfResponse,
 } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const MOCK = process.env.NEXT_PUBLIC_MOCK === "1";
+// Lets photo/text recognition hit the real backend while everything else stays mocked.
+const LIVE_IDENTIFY = process.env.NEXT_PUBLIC_LIVE_IDENTIFY === "1";
+// Mocks only what needs the M2–M7 model (/state, /profile, /whatif, /brief), built from real logs.
+// The Today curve itself is real: GET /curve needs only M1.
+const MOCK_MODEL = process.env.NEXT_PUBLIC_MOCK_MODEL === "1";
 const MOCK_DELAY_MS = 300;
 
 const mock = <T,>(make: () => T): Promise<T> =>
@@ -27,9 +32,24 @@ const mockDrinks = () => (store.drinks ??= fixtureDrinkHistory());
 const mockSleep = () => (store.sleep ??= fixtureSleep());
 const sameDay = (iso: string, now: Date) => new Date(iso).toDateString() === now.toDateString();
 
+export class ApiError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+/** Fired when the backend no longer knows the stored user (the in-memory repo forgets on restart). */
+export const UNKNOWN_USER_EVENT = "unknown-user";
+
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, init);
-  if (!res.ok) throw new Error(`${init?.method ?? "GET"} ${path} failed: ${res.status}`);
+  if (res.status === 404) {
+    const body = await res.clone().json().catch(() => null);
+    if (body?.detail === "Unknown user") window.dispatchEvent(new Event(UNKNOWN_USER_EVENT));
+  }
+  if (!res.ok) throw new ApiError(`${init?.method ?? "GET"} ${path} failed: ${res.status}`, res.status);
   return res.json() as Promise<T>;
 }
 
@@ -57,7 +77,26 @@ export function getState(userId = 1): Promise<StateResponse> {
       return s;
     });
   }
+  if (MOCK_MODEL) {
+    return Promise.all([getDrinks(userId, 1), getUser(userId), getCurve(userId)]).then(([drinks, user, c]) => {
+      const now = new Date();
+      const s = fixtureState(now, drinks.filter((d) => sameDay(d.time, now)), userId);
+      return { ...s, bedtime: user.bedtime.slice(0, 5), now_mg: c.now_mg, curve: c.curve };
+    });
+  }
   return http(`/state${qs({ user_id: userId })}`);
+}
+
+/** Caffeine in the body from now to 08:00, at the population half-life (M1 only). */
+export function getCurve(userId = 1): Promise<{ now_mg: number; h: number; curve: CurvePoint[] }> {
+  if (MOCK) {
+    return mock(() => {
+      const now = new Date();
+      const curve = fixtureState(now, mockDrinks().filter((d) => sameDay(d.time, now)), userId).curve;
+      return { now_mg: curve[0].mg, h: 5, curve };
+    });
+  }
+  return http(`/curve${qs({ user_id: userId })}`);
 }
 
 export function getProfile(userId = 1): Promise<ProfileResponse> {
@@ -67,7 +106,13 @@ export function getProfile(userId = 1): Promise<ProfileResponse> {
       return userId === 1 ? { ...p, checkins: mockSleep() } : p;
     });
   }
+  if (MOCK_MODEL) return getSleep(userId).then((checkins) => ({ ...fixtureProfile(new Date(), userId), checkins }));
   return http(`/profile${qs({ user_id: userId })}`);
+}
+
+export function getSleep(userId = 1): Promise<SleepNight[]> {
+  if (MOCK) return mock(() => [...mockSleep()].sort((a, b) => b.night.localeCompare(a.night)));
+  return http(`/sleep${qs({ user_id: userId })}`);
 }
 
 export function getDrinks(userId = 1, days = 14): Promise<Drink[]> {
@@ -99,7 +144,7 @@ export function getUser(id = 1): Promise<User> {
 
 /** Returns an object URL for the morning-brief audio. */
 export async function getBrief(userId = 1): Promise<string> {
-  if (MOCK) return "";
+  if (MOCK || MOCK_MODEL) return "";
   const res = await fetch(`${BASE}/brief${qs({ user_id: userId })}`);
   if (!res.ok) throw new Error(`GET /brief failed: ${res.status}`);
   return URL.createObjectURL(await res.blob());
@@ -108,20 +153,23 @@ export async function getBrief(userId = 1): Promise<string> {
 // ---- Writes (each revalidates /state, see below) ----
 
 export function whatIf(userId: number, drinkKey: string, mg: number): Promise<WhatIfResponse> {
-  if (MOCK) return mock(() => fixtureWhatIf(drinkKey, mg));
+  if (MOCK || MOCK_MODEL) return mock(() => fixtureWhatIf(drinkKey, mg));
   return http("/whatif", json("POST", { user_id: userId, drink_key: drinkKey, mg }));
 }
 
-export function identifyDrink(
+export async function identifyDrink(
   input: { image?: Blob; text?: string; source: Source; user_id?: number },
 ): Promise<IdentifyResponse> {
-  if (MOCK) return mock(() => fixtureIdentify(input.image ? "photo" : "text"));
+  if (MOCK && !LIVE_IDENTIFY) return mock(() => fixtureIdentify(input.image ? "photo" : "text"));
   const form = new FormData();
   if (input.image) form.append("image", input.image, "drink.jpg");
   if (input.text) form.append("text", input.text);
   form.append("source", input.source);
   form.append("user_id", String(input.user_id ?? 1));
-  return http("/drinks/identify", { method: "POST", body: form });
+  const out = await http<IdentifyResponse>("/drinks/identify", { method: "POST", body: form });
+  // The backend logged it; mirror that into the mock store so reads stay consistent.
+  if (MOCK && out.logged) mockDrinks().push(out.logged);
+  return out;
 }
 
 export type NewDrink = Omit<Drink, "time" | "user_id"> & { user_id?: number; time?: string };
@@ -172,6 +220,7 @@ export async function submitSleep(s: Omit<SleepNight, "user_id"> & { user_id?: n
     : await http<SleepNight>("/sleep", json("POST", s));
   revalidate("/state");
   revalidate("/profile");
+  revalidate("/sleep");
   return out;
 }
 
@@ -216,10 +265,31 @@ export function storedUserId(): number | null {
   }
 }
 
+const USER_EVENT = "user_id-change";
+
+/** Saves (or with null, forgets) the current user and tells every `useUserId` on the page. */
+export function setStoredUserId(id: number | null): void {
+  try {
+    if (id === null) localStorage.removeItem("user_id");
+    else localStorage.setItem("user_id", String(id));
+  } catch { /* storage unavailable */ }
+  window.dispatchEvent(new Event(USER_EVENT));
+}
+
 /** Client-only: null on the server and first render, then the stored id (default 1). */
 export function useUserId(): number | null {
   const [id, setId] = useState<number | null>(null);
-  useEffect(() => setId(storedUserId() ?? 1), []);
+  useEffect(() => {
+    // Layout components outlive onboarding, so follow later changes too.
+    const read = () => setId(storedUserId() ?? 1);
+    read();
+    window.addEventListener(USER_EVENT, read);
+    window.addEventListener("storage", read);
+    return () => {
+      window.removeEventListener(USER_EVENT, read);
+      window.removeEventListener("storage", read);
+    };
+  }, []);
   return id;
 }
 

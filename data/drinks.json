@@ -5,7 +5,6 @@
     "mg": 65,
     "low": 50,
     "high": 100,
-    "emoji": "☕",
     "per": "shot",
     "preset": true
   },
@@ -15,7 +14,6 @@
     "mg": 65,
     "low": 50,
     "high": 100,
-    "emoji": "☕",
     "per": "shot",
     "preset": true
   },
@@ -25,7 +23,6 @@
     "mg": 65,
     "low": 50,
     "high": 100,
-    "emoji": "☕",
     "per": "shot",
     "preset": true
   },
@@ -35,7 +32,6 @@
     "mg": 65,
     "low": 50,
     "high": 100,
-    "emoji": "🍫",
     "per": "shot",
     "preset": true
   },
@@ -45,8 +41,8 @@
     "mg": 95,
     "low": 70,
     "high": 140,
-    "emoji": "☕",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -55,8 +51,8 @@
     "mg": 200,
     "low": 150,
     "high": 250,
-    "emoji": "🧊",
     "per": "serving",
+    "ml": 350,
     "preset": true
   },
   {
@@ -65,8 +61,8 @@
     "mg": 60,
     "low": 30,
     "high": 90,
-    "emoji": "☕",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -75,7 +71,6 @@
     "mg": 80,
     "low": 60,
     "high": 200,
-    "emoji": "☕",
     "per": "serving",
     "preset": true
   },
@@ -85,8 +80,8 @@
     "mg": 5,
     "low": 2,
     "high": 15,
-    "emoji": "☕",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -95,8 +90,8 @@
     "mg": 45,
     "low": 25,
     "high": 70,
-    "emoji": "🫖",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -105,8 +100,8 @@
     "mg": 30,
     "low": 20,
     "high": 45,
-    "emoji": "🍵",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -115,7 +110,6 @@
     "mg": 70,
     "low": 60,
     "high": 80,
-    "emoji": "🍵",
     "per": "serving",
     "preset": true
   },
@@ -125,8 +119,8 @@
     "mg": 40,
     "low": 25,
     "high": 60,
-    "emoji": "🫖",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -135,8 +129,8 @@
     "mg": 80,
     "low": 65,
     "high": 130,
-    "emoji": "🧉",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -145,8 +139,8 @@
     "mg": 25,
     "low": 15,
     "high": 50,
-    "emoji": "🧊",
     "per": "serving",
+    "ml": 500,
     "preset": true
   },
   {
@@ -155,8 +149,8 @@
     "mg": 32,
     "low": 30,
     "high": 35,
-    "emoji": "🥤",
     "per": "serving",
+    "ml": 330,
     "preset": true
   },
   {
@@ -165,8 +159,8 @@
     "mg": 40,
     "low": 35,
     "high": 45,
-    "emoji": "🥤",
     "per": "serving",
+    "ml": 330,
     "preset": true
   },
   {
@@ -175,8 +169,8 @@
     "mg": 80,
     "low": 80,
     "high": 80,
-    "emoji": "🥤",
     "per": "serving",
+    "ml": 250,
     "preset": true
   },
   {
@@ -185,8 +179,8 @@
     "mg": 160,
     "low": 150,
     "high": 170,
-    "emoji": "🥤",
     "per": "serving",
+    "ml": 500,
     "preset": true
   },
   {
@@ -195,7 +189,6 @@
     "mg": 200,
     "low": 150,
     "high": 300,
-    "emoji": "🏋️",
     "per": "serving",
     "preset": true
   },
@@ -205,8 +198,8 @@
     "mg": 10,
     "low": 5,
     "high": 15,
-    "emoji": "🍫",
     "per": "serving",
+    "ml": 240,
     "preset": true
   },
   {
@@ -215,8 +208,900 @@
     "mg": 0,
     "low": 0,
     "high": 0,
-    "emoji": "🫖",
     "per": "serving",
+    "ml": 240,
     "preset": true
+  },
+  {
+    "key": "oolong_tea",
+    "label": "Oolong tea",
+    "mg": 38,
+    "low": 20,
+    "high": 55,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "white_tea",
+    "label": "White tea",
+    "mg": 28,
+    "low": 15,
+    "high": 55,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "milk_tea",
+    "label": "Milk tea / bubble tea",
+    "mg": 90,
+    "low": 40,
+    "high": 160,
+    "per": "serving",
+    "ml": 500,
+    "preset": false
+  },
+  {
+    "key": "dark_chocolate",
+    "label": "Dark chocolate (30 g)",
+    "mg": 25,
+    "low": 15,
+    "high": 45,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "milk_chocolate",
+    "label": "Milk chocolate bar (45 g)",
+    "mg": 9,
+    "low": 5,
+    "high": 15,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "chocolate_bake",
+    "label": "Chocolate cake / brownie",
+    "mg": 10,
+    "low": 3,
+    "high": 25,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "coffee_bake",
+    "label": "Coffee cake / muffin",
+    "mg": 20,
+    "low": 0,
+    "high": 50,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "tiramisu",
+    "label": "Tiramisu",
+    "mg": 35,
+    "low": 15,
+    "high": 60,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "coffee_ice_cream",
+    "label": "Coffee ice cream",
+    "mg": 30,
+    "low": 15,
+    "high": 50,
+    "per": "serving",
+    "ml": 125,
+    "preset": false
+  },
+  {
+    "key": "espresso_beans",
+    "label": "Chocolate espresso beans (10)",
+    "mg": 120,
+    "low": 80,
+    "high": 170,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "caffeine_gum",
+    "label": "Caffeine gum (1 piece)",
+    "mg": 60,
+    "low": 40,
+    "high": 100,
+    "per": "unit",
+    "preset": false
+  },
+  {
+    "key": "energy_gel",
+    "label": "Caffeinated energy gel",
+    "mg": 40,
+    "low": 20,
+    "high": 100,
+    "per": "unit",
+    "preset": false
+  },
+  {
+    "key": "caffeine_pill",
+    "label": "Caffeine tablet",
+    "mg": 100,
+    "low": 50,
+    "high": 200,
+    "per": "unit",
+    "preset": false
+  },
+  {
+    "key": "water",
+    "label": "Water",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "sparkling_water",
+    "label": "Sparkling / mineral water",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "milk",
+    "label": "Milk",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "plant_milk",
+    "label": "Plant milk (oat, soy, almond)",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "juice",
+    "label": "Fruit juice",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "smoothie",
+    "label": "Smoothie",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "lemonade",
+    "label": "Lemonade",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "coconut_water",
+    "label": "Coconut water",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "sports_drink",
+    "label": "Sports / electrolyte drink",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 500,
+    "preset": false
+  },
+  {
+    "key": "protein_shake",
+    "label": "Protein shake",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "caffeine_free_soda",
+    "label": "Caffeine-free soda",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "caffeine_free_cola",
+    "label": "Caffeine-free cola",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "golden_milk",
+    "label": "Golden milk / turmeric latte",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "barley_tea",
+    "label": "Barley tea (mugicha, boricha)",
+    "mg": 0,
+    "low": 0,
+    "high": 0,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "chicory_coffee",
+    "label": "Chicory / grain coffee",
+    "mg": 0,
+    "low": 0,
+    "high": 10,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "citrus_soda",
+    "label": "Citrus soda, Mountain Dew style (355 ml)",
+    "mg": 54,
+    "low": 45,
+    "high": 70,
+    "per": "serving",
+    "ml": 355,
+    "preset": false
+  },
+  {
+    "key": "pepper_soda",
+    "label": "Dr Pepper style soda (355 ml)",
+    "mg": 41,
+    "low": 36,
+    "high": 45,
+    "per": "serving",
+    "ml": 355,
+    "preset": false
+  },
+  {
+    "key": "root_beer",
+    "label": "Root beer",
+    "mg": 5,
+    "low": 0,
+    "high": 23,
+    "per": "serving",
+    "ml": 355,
+    "preset": false
+  },
+  {
+    "key": "orange_soda",
+    "label": "Orange soda",
+    "mg": 5,
+    "low": 0,
+    "high": 20,
+    "per": "serving",
+    "ml": 355,
+    "preset": false
+  },
+  {
+    "key": "guarana_soda",
+    "label": "Guaraná soda",
+    "mg": 12,
+    "low": 5,
+    "high": 25,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "mate_soda",
+    "label": "Mate soda, Club-Mate style (500 ml)",
+    "mg": 100,
+    "low": 80,
+    "high": 120,
+    "per": "serving",
+    "ml": 500,
+    "preset": false
+  },
+  {
+    "key": "caffeinated_water",
+    "label": "Caffeinated water / seltzer",
+    "mg": 70,
+    "low": 30,
+    "high": 125,
+    "per": "serving",
+    "ml": 355,
+    "preset": false
+  },
+  {
+    "key": "energy_shot",
+    "label": "Energy shot (60 ml)",
+    "mg": 200,
+    "low": 100,
+    "high": 230,
+    "per": "serving",
+    "ml": 60,
+    "preset": false
+  },
+  {
+    "key": "fitness_energy_drink",
+    "label": "Fitness energy drink, Celsius style (355 ml)",
+    "mg": 200,
+    "low": 140,
+    "high": 200,
+    "per": "serving",
+    "ml": 355,
+    "preset": false
+  },
+  {
+    "key": "energy_drink_high",
+    "label": "High-stim energy drink, Bang style (473 ml)",
+    "mg": 300,
+    "low": 200,
+    "high": 350,
+    "per": "serving",
+    "ml": 473,
+    "preset": false
+  },
+  {
+    "key": "ristretto",
+    "label": "Ristretto",
+    "mg": 55,
+    "low": 40,
+    "high": 80,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "lungo",
+    "label": "Lungo",
+    "mg": 80,
+    "low": 60,
+    "high": 120,
+    "per": "serving",
+    "ml": 110,
+    "preset": false
+  },
+  {
+    "key": "moka_pot",
+    "label": "Moka pot coffee",
+    "mg": 90,
+    "low": 60,
+    "high": 130,
+    "per": "serving",
+    "ml": 60,
+    "preset": false
+  },
+  {
+    "key": "french_press",
+    "label": "French press coffee",
+    "mg": 100,
+    "low": 80,
+    "high": 135,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "iced_coffee",
+    "label": "Iced coffee",
+    "mg": 120,
+    "low": 80,
+    "high": 165,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "nitro_cold_brew",
+    "label": "Nitro cold brew",
+    "mg": 200,
+    "low": 150,
+    "high": 265,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "bottled_coffee",
+    "label": "Bottled / canned coffee",
+    "mg": 100,
+    "low": 50,
+    "high": 150,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "blended_coffee",
+    "label": "Blended coffee / Frappuccino",
+    "mg": 80,
+    "low": 50,
+    "high": 130,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "half_caf",
+    "label": "Half-caf coffee",
+    "mg": 50,
+    "low": 35,
+    "high": 70,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "bulletproof_coffee",
+    "label": "Bulletproof / butter coffee",
+    "mg": 120,
+    "low": 80,
+    "high": 170,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "mushroom_coffee",
+    "label": "Mushroom coffee",
+    "mg": 45,
+    "low": 30,
+    "high": 100,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "coffee_milk",
+    "label": "Coffee-flavoured milk",
+    "mg": 80,
+    "low": 30,
+    "high": 180,
+    "per": "serving",
+    "ml": 500,
+    "preset": false
+  },
+  {
+    "key": "greek_frappe",
+    "label": "Greek frappé",
+    "mg": 90,
+    "low": 60,
+    "high": 130,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "dalgona_coffee",
+    "label": "Dalgona / whipped coffee",
+    "mg": 120,
+    "low": 60,
+    "high": 180,
+    "per": "serving",
+    "ml": 300,
+    "preset": false
+  },
+  {
+    "key": "turkish_coffee",
+    "label": "Turkish coffee",
+    "mg": 50,
+    "low": 35,
+    "high": 80,
+    "per": "serving",
+    "ml": 60,
+    "preset": false
+  },
+  {
+    "key": "arabic_coffee",
+    "label": "Arabic coffee (qahwa)",
+    "mg": 30,
+    "low": 15,
+    "high": 50,
+    "per": "serving",
+    "ml": 50,
+    "preset": false
+  },
+  {
+    "key": "ethiopian_buna",
+    "label": "Ethiopian coffee (buna)",
+    "mg": 70,
+    "low": 50,
+    "high": 100,
+    "per": "serving",
+    "ml": 70,
+    "preset": false
+  },
+  {
+    "key": "cuban_coffee",
+    "label": "Cuban coffee (cafecito)",
+    "mg": 75,
+    "low": 50,
+    "high": 120,
+    "per": "serving",
+    "ml": 60,
+    "preset": false
+  },
+  {
+    "key": "vietnamese_coffee",
+    "label": "Vietnamese phin coffee",
+    "mg": 150,
+    "low": 100,
+    "high": 250,
+    "per": "serving",
+    "ml": 200,
+    "preset": false
+  },
+  {
+    "key": "egg_coffee",
+    "label": "Vietnamese egg coffee",
+    "mg": 100,
+    "low": 60,
+    "high": 150,
+    "per": "serving",
+    "ml": 150,
+    "preset": false
+  },
+  {
+    "key": "thai_iced_coffee",
+    "label": "Thai iced coffee (oliang)",
+    "mg": 100,
+    "low": 60,
+    "high": 150,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "kopi",
+    "label": "Kopi (Malaysian / Singaporean coffee)",
+    "mg": 120,
+    "low": 80,
+    "high": 180,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "yuanyang",
+    "label": "Yuanyang (coffee with milk tea)",
+    "mg": 90,
+    "low": 60,
+    "high": 140,
+    "per": "serving",
+    "ml": 300,
+    "preset": false
+  },
+  {
+    "key": "cafe_de_olla",
+    "label": "Café de olla",
+    "mg": 90,
+    "low": 60,
+    "high": 130,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "dirty_chai",
+    "label": "Dirty chai",
+    "mg": 105,
+    "low": 75,
+    "high": 160,
+    "per": "serving",
+    "ml": 350,
+    "preset": false
+  },
+  {
+    "key": "irish_coffee",
+    "label": "Irish coffee",
+    "mg": 90,
+    "low": 60,
+    "high": 130,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "espresso_martini",
+    "label": "Espresso martini",
+    "mg": 65,
+    "low": 40,
+    "high": 100,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "coffee_liqueur",
+    "label": "Coffee liqueur (30 ml)",
+    "mg": 4,
+    "low": 2,
+    "high": 10,
+    "per": "serving",
+    "ml": 30,
+    "preset": false
+  },
+  {
+    "key": "cascara",
+    "label": "Cascara (coffee cherry tea)",
+    "mg": 25,
+    "low": 10,
+    "high": 40,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "coffee_leaf_tea",
+    "label": "Coffee leaf tea",
+    "mg": 20,
+    "low": 10,
+    "high": 30,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "pu_erh",
+    "label": "Pu-erh tea",
+    "mg": 60,
+    "low": 30,
+    "high": 100,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "hojicha",
+    "label": "Hojicha",
+    "mg": 20,
+    "low": 7,
+    "high": 30,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "genmaicha",
+    "label": "Genmaicha",
+    "mg": 18,
+    "low": 10,
+    "high": 30,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "gyokuro",
+    "label": "Gyokuro",
+    "mg": 75,
+    "low": 40,
+    "high": 120,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "kukicha",
+    "label": "Kukicha (twig tea)",
+    "mg": 10,
+    "low": 5,
+    "high": 20,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "yellow_tea",
+    "label": "Yellow tea",
+    "mg": 30,
+    "low": 15,
+    "high": 45,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "turkish_tea",
+    "label": "Turkish tea (çay)",
+    "mg": 30,
+    "low": 20,
+    "high": 50,
+    "per": "serving",
+    "ml": 100,
+    "preset": false
+  },
+  {
+    "key": "moroccan_mint_tea",
+    "label": "Moroccan mint tea",
+    "mg": 20,
+    "low": 10,
+    "high": 35,
+    "per": "serving",
+    "ml": 120,
+    "preset": false
+  },
+  {
+    "key": "butter_tea",
+    "label": "Tibetan butter tea (po cha)",
+    "mg": 40,
+    "low": 20,
+    "high": 60,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "noon_chai",
+    "label": "Kashmiri pink tea (noon chai)",
+    "mg": 25,
+    "low": 15,
+    "high": 40,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "kombucha",
+    "label": "Kombucha",
+    "mg": 15,
+    "low": 5,
+    "high": 30,
+    "per": "serving",
+    "ml": 330,
+    "preset": false
+  },
+  {
+    "key": "guayusa",
+    "label": "Guayusa",
+    "mg": 60,
+    "low": 40,
+    "high": 90,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "yaupon",
+    "label": "Yaupon tea",
+    "mg": 40,
+    "low": 20,
+    "high": 75,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "mate_gourd",
+    "label": "Mate in a gourd (full session)",
+    "mg": 130,
+    "low": 80,
+    "high": 200,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "chocolate_milk",
+    "label": "Chocolate milk",
+    "mg": 5,
+    "low": 2,
+    "high": 10,
+    "per": "serving",
+    "ml": 250,
+    "preset": false
+  },
+  {
+    "key": "malted_drink",
+    "label": "Malted drink (Milo, Ovaltine)",
+    "mg": 5,
+    "low": 0,
+    "high": 15,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "ceremonial_cacao",
+    "label": "Ceremonial cacao",
+    "mg": 25,
+    "low": 10,
+    "high": 50,
+    "per": "serving",
+    "ml": 240,
+    "preset": false
+  },
+  {
+    "key": "coffee_jelly",
+    "label": "Coffee jelly",
+    "mg": 50,
+    "low": 30,
+    "high": 80,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "coffee_yogurt",
+    "label": "Coffee yogurt",
+    "mg": 20,
+    "low": 5,
+    "high": 45,
+    "per": "serving",
+    "preset": false
+  },
+  {
+    "key": "coffee_candy",
+    "label": "Coffee candy (1 piece)",
+    "mg": 5,
+    "low": 3,
+    "high": 10,
+    "per": "unit",
+    "preset": false
+  },
+  {
+    "key": "caffeine_mints",
+    "label": "Caffeinated mint (1 piece)",
+    "mg": 40,
+    "low": 10,
+    "high": 100,
+    "per": "unit",
+    "preset": false
+  },
+  {
+    "key": "caffeinated_bar",
+    "label": "Caffeinated energy bar",
+    "mg": 65,
+    "low": 25,
+    "high": 100,
+    "per": "unit",
+    "preset": false
+  },
+  {
+    "key": "caffeine_pouch",
+    "label": "Caffeine pouch",
+    "mg": 100,
+    "low": 50,
+    "high": 200,
+    "per": "unit",
+    "preset": false
   }
 ]

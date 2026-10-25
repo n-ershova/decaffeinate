@@ -90,6 +90,20 @@ class MemoryRepo:
         with self._lock:
             return float(sum(d.mg for d in self.list_drinks(user_id, start, start + timedelta(days=1))))
 
+    def delete_drinks(self, user_id: int, times: list[datetime]) -> int:
+        drop = set(times)
+        with self._lock:
+            before = len(self._drinks)
+            self._drinks[:] = [d for d in self._drinks if not (d.user_id == user_id and d.time in drop)]
+            return before - len(self._drinks)
+
+    def delete_sleep(self, user_id: int, nights: list[date]) -> int:
+        with self._lock:
+            keys = [(user_id, n) for n in set(nights) if (user_id, n) in self._sleep]
+            for key in keys:
+                del self._sleep[key]
+            return len(keys)
+
     def reset_user(self, user_id: int) -> None:
         with self._lock:
             for collection in (self._drinks, self._alcohol, self._hr):

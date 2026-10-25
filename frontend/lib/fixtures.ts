@@ -4,7 +4,7 @@ import type {
 } from "./types";
 
 const MIN = 60_000;
-const HALF_LIFE_H = 7.1;
+const HALF_LIFE_H = 5; // population default, as in backend/model.py
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -55,18 +55,18 @@ export const MOCK_USER: User = {
 };
 
 export const PRESETS: Preset[] = [
-  { key: "espresso_shot", label: "Espresso shot", mg: 63, mg_low: 50, mg_high: 75, emoji: "☕" },
-  { key: "milk_coffee", label: "Latte / flat white", mg: 130, mg_low: 90, mg_high: 180, emoji: "🥛" },
-  { key: "americano", label: "Americano", mg: 150, mg_low: 100, mg_high: 200, emoji: "☕" },
-  { key: "filter_coffee", label: "Filter coffee", mg: 140, mg_low: 95, mg_high: 200, emoji: "🫖" },
-  { key: "cold_brew", label: "Cold brew", mg: 200, mg_low: 150, mg_high: 280, emoji: "🧊" },
-  { key: "black_tea", label: "Black tea", mg: 47, mg_low: 30, mg_high: 70, emoji: "🍵" },
-  { key: "green_tea", label: "Green tea", mg: 28, mg_low: 20, mg_high: 45, emoji: "🍃" },
-  { key: "matcha", label: "Matcha", mg: 70, mg_low: 40, mg_high: 90, emoji: "🥬" },
-  { key: "cola", label: "Cola", mg: 34, mg_low: 30, mg_high: 40, emoji: "🥤" },
-  { key: "red_bull", label: "Red Bull", mg: 80, mg_low: 75, mg_high: 85, emoji: "⚡" },
-  { key: "energy_drink_500", label: "Energy drink (500 ml)", mg: 160, mg_low: 140, mg_high: 200, emoji: "🔋" },
-  { key: "decaf", label: "Decaf", mg: 7, mg_low: 2, mg_high: 15, emoji: "🌙" },
+  { key: "espresso_shot", label: "Espresso shot", mg: 63, mg_low: 50, mg_high: 75 },
+  { key: "milk_coffee", label: "Latte / flat white", mg: 130, mg_low: 90, mg_high: 180 },
+  { key: "americano", label: "Americano", mg: 150, mg_low: 100, mg_high: 200 },
+  { key: "filter_coffee", label: "Filter coffee", mg: 140, mg_low: 95, mg_high: 200 },
+  { key: "cold_brew", label: "Cold brew", mg: 200, mg_low: 150, mg_high: 280 },
+  { key: "black_tea", label: "Black tea", mg: 47, mg_low: 30, mg_high: 70 },
+  { key: "green_tea", label: "Green tea", mg: 28, mg_low: 20, mg_high: 45 },
+  { key: "matcha", label: "Matcha", mg: 70, mg_low: 40, mg_high: 90 },
+  { key: "cola", label: "Cola", mg: 34, mg_low: 30, mg_high: 40 },
+  { key: "red_bull", label: "Red Bull", mg: 80, mg_low: 75, mg_high: 85 },
+  { key: "energy_drink_500", label: "Energy drink (500 ml)", mg: 160, mg_low: 140, mg_high: 200 },
+  { key: "decaf", label: "Decaf", mg: 7, mg_low: 2, mg_high: 15 },
 ];
 
 /** A realistic day: morning flat white, post-lunch americano. Amber state. */
@@ -150,7 +150,7 @@ export function fixtureSleep(now = new Date()): SleepNight[] {
 
 /** Mock users: 1 is "you"; 2 and 3 are the simulated demo pair (same habits, different true h). */
 export const MOCK_PROFILES: Record<number, { h: number; sd: number; beta: number; label: string; cutoff: string | null; led: "green" | "amber" | "red" }> = {
-  1: { h: 7.1, sd: 1.0, beta: 6.2, label: "Average sensitivity", cutoff: "14:10", led: "amber" },
+  1: { h: HALF_LIFE_H, sd: 1.0, beta: 6.2, label: "Average sensitivity", cutoff: "14:10", led: "amber" },
   2: { h: 9.0, sd: 0.9, beta: 7.0, label: "Above-average sensitivity", cutoff: "11:40", led: "red" },
   3: { h: 3.5, sd: 0.5, beta: 5.1, label: "Average sensitivity", cutoff: "18:20", led: "green" },
 };
@@ -191,7 +191,14 @@ export function fixtureProfile(now = new Date(), userId = 1): ProfileResponse {
 
 export function fixtureIdentify(kind: "photo" | "text" = "photo"): IdentifyResponse {
   return {
-    gemini: { drink: "milk_coffee", size: "regular", shots: 2, brand: null, decaf: false, label_mg: null, confidence: kind === "photo" ? 0.82 : 0.9 },
+    gemini: { drink: "milk_coffee", size: "regular", shots: 2, brand: "Pret", decaf: false, label_mg: null, confidence: kind === "photo" ? 0.82 : 0.9,
+      analysis: {
+        verdict: "Pret regular oat flat white", description: "A white paper takeaway cup with a burgundy Pret sleeve and a domed lid, held in one hand.",
+        category: "coffee", product_name: "Flat white", container: "paper_cup", volume_ml: 340, volume_source: "estimated",
+        temperature: "hot", milk: "oat", additions: [], visible_text: ["PRET A MANGER", "OAT"], printed_caffeine: null,
+        evidence: ["Pret logo on the sleeve", "'OAT' marked on the lid", "Cup about the height of the hand holding it"],
+        alternatives: [{ drink: "americano", confidence: 0.08 }], image_issues: [],
+      } },
     estimate: { drink_key: "milk_coffee", label: "Latte (regular)", mg: 130, mg_low: 90, mg_high: 180, needs: ["decaf"], auto_accept: false },
   };
 }

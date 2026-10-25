@@ -21,6 +21,9 @@ class FakeEngine:
     def state(self, user_id, now):
         if user_id == 999: raise KeyError(user_id)
         return deepcopy(STATE)
+    def curve(self, user_id, now):
+        if user_id == 999: raise KeyError(user_id)
+        return {"now_mg": STATE["now_mg"], "h": 5, "curve": deepcopy(STATE["curve"])}
     def profile(self, user_id, now):
         if user_id == 999: raise KeyError(user_id)
         return deepcopy(PROFILE)

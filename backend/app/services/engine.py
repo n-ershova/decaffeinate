@@ -62,6 +62,14 @@ class Engine:
         return [{"t": t.isoformat(), "mg": float(mg)} for t, mg in
                 m.curve.curve(drinks, now, end, h, step_min=15)]
 
+    def curve(self, user_id: int, now: datetime) -> dict:
+        """GET /curve: needs only M1, at the population half-life until M3 learns one."""
+        _, drinks, _, _, _, _ = self._load(user_id, now)
+        m = SimpleNamespace(curve=import_module("app.model.curve"))
+        h = m.curve.DEFAULT_H
+        return {"now_mg": float(m.curve.amount_at(drinks, now, h)), "h": h,
+                "curve": self._curve(m, drinks, now, h)}
+
     def state(self, user_id: int, now: datetime) -> dict:
         user, drinks, alcohol, nights, today, bedtime = self._load(user_id, now)
         m = _models()

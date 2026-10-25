@@ -3,7 +3,7 @@
 import { useState } from "react";
 import CheckinHistory from "@/components/CheckinHistory";
 import DrinkHistory from "@/components/DrinkHistory";
-import { deleteDrinks, deleteSleep, getDrinks, getProfile, useApi, useUserId } from "@/lib/api";
+import { deleteDrinks, deleteSleep, getDrinks, getSleep, useApi, useUserId } from "@/lib/api";
 
 const VIEWS = [
   { key: "drinks", label: "Intake" },
@@ -16,8 +16,8 @@ export default function History() {
   const [selected, setSelected] = useState<Set<string> | null>(null); // null = not editing
   const [state, setState] = useState<"idle" | "deleting" | "error">("idle");
   const drinks = useApi(userId ? `/drinks?user_id=${userId}` : null, () => getDrinks(userId!));
-  const profile = useApi(userId ? `/profile?user_id=${userId}` : null, () => getProfile(userId!));
-  const current = view === "drinks" ? drinks : profile;
+  const sleep = useApi(userId ? `/sleep?user_id=${userId}` : null, () => getSleep(userId!));
+  const current = view === "drinks" ? drinks : sleep;
 
   const stopEditing = () => { setSelected(null); setState("idle"); };
 
@@ -42,7 +42,7 @@ export default function History() {
   }
 
   const sel = selected ?? undefined;
-  const hasRows = view === "drinks" ? !!drinks.data?.length : !!profile.data?.checkins.length;
+  const hasRows = view === "drinks" ? !!drinks.data?.length : !!sleep.data?.length;
 
   return (
     <div style={{ display: "grid", gap: 40, maxWidth: 560 }}>
@@ -66,7 +66,7 @@ export default function History() {
 
       {current.error ? <p style={{ color: "var(--muted)" }}>Couldn&apos;t reach the server.</p>
         : view === "drinks" ? (drinks.data ? <DrinkHistory drinks={drinks.data} selected={sel} onToggle={toggle} /> : <p style={{ color: "var(--muted)" }}>Loading…</p>)
-        : (profile.data ? <CheckinHistory checkins={profile.data.checkins} selected={sel} onToggle={toggle} /> : <p style={{ color: "var(--muted)" }}>Loading…</p>)}
+        : (sleep.data ? <CheckinHistory checkins={sleep.data} selected={sel} onToggle={toggle} /> : <p style={{ color: "var(--muted)" }}>Loading…</p>)}
 
       {selected && (
         <div className="action-bar">

@@ -173,3 +173,18 @@ def test_orchestration_performance_budget_with_standins(setup):
     start = perf_counter()
     service.state(1, now)
     assert perf_counter() - start < .2
+
+
+def test_curve_uses_real_m1_at_population_half_life(setup):
+    repo, service, now, _, _ = setup
+    yesterday = now - timedelta(hours=20)
+    repo.drinks = [drink(yesterday, 130), drink(now - timedelta(hours=5), 80), drink(now + timedelta(hours=1))]
+    result = service.curve(1, now)
+    assert result["h"] == 5
+    assert result["now_mg"] == pytest.approx(130 * 0.5 ** 4 + 40)  # yesterday's residual counts
+    assert result["curve"][0] == {"t": now.isoformat(), "mg": result["now_mg"]}
+    assert result["curve"][-1]["t"] == (now.replace(hour=8) + timedelta(days=1)).isoformat()
+    assert len(result["curve"]) == 17 * 4 + 1  # 16:00 to 08:00 spans the clocks going back
+    json.dumps(result, allow_nan=False)
+    with pytest.raises(KeyError):
+        service.curve(999, now)
